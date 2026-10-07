@@ -1,0 +1,20 @@
+id: linear-algebra
+title: Linear Algebra
+summary: Placeholder course. Vectors, matrices as machines, and why the determinant is an area. Real content replaces this skeleton later.
+status: placeholder
+flights:
+  - id: 01-what-a-matrix-does
+    title: What a matrix does
+    rungs:
+      - id: 01-vectors-as-arrows
+        title: Vectors as arrows
+        kind: confirm
+        file: rungs/01-01-vectors-as-arrows.md
+      - id: 02-matrix-as-machine
+        title: A matrix is a machine
+        kind: break
+        file: rungs/01-02-matrix-as-machine.md
+      - id: 03-determinant-as-area
+        title: Determinant as area
+        kind: unify
+        file: rungs/01-03-determinant-as-area.md
