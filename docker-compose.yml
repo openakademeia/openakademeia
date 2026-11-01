@@ -2,9 +2,9 @@ services:
   openacademy:
     build:
       context: .
-      dockerfile: platform/Dockerfile
+      dockerfile: src/Dockerfile
     ports:
       - "8080:8080"
     volumes:
-      - ./library:/data/library:ro
-      - ./addon:/data/addon:ro
+      - ./content:/data/content:ro
+      - ./plugins/cognitive-sparring-partner:/data/plugin:ro
