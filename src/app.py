@@ -12,14 +12,14 @@ from fastapi.staticfiles import StaticFiles
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_CONTENT = REPO_ROOT / "content"
-DEFAULT_PLUGIN = REPO_ROOT / "plugins" / "cognitive-sparring-partner"
+DEFAULT_PLUGIN = REPO_ROOT / "plugins" / "mentor"
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 CourseKey = tuple[str, str, str]
 
 BUNDLE_README = """# {title} (openacademy bundle)
 
-`course/` holds the course package and `addon/` holds the Cognitive Sparring Partner protocol your agent runs.
+`course/` holds the course package and `addon/` holds the Mentor protocol your agent runs.
 
 1. Attach the addon to your agent: see `addon/README.md` for Claude Code, claude.ai, Cursor, Codex, Gemini, and ChatGPT.
 2. Open your agent in this folder and say: "Start the course in ./course."

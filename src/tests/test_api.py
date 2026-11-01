@@ -8,7 +8,7 @@ from app import create_app
 
 REPO = Path(__file__).resolve().parents[2]
 CONTENT = REPO / "content"
-PLUGIN = REPO / "plugins" / "cognitive-sparring-partner"
+PLUGIN = REPO / "plugins" / "mentor"
 COURSE_URL = "/api/fields/mathematics/subfields/algebra/courses/linear-algebra"
 
 

@@ -58,7 +58,7 @@ Each chapter is one flight of 3 to 5 rungs, small enough that one sitting finish
 ## Notes
 
 - Interactive artifacts matter most in chapters 3, 4, 8, 12, and 14, where the claim is about a picture.
-- Rung mix per flight follows `plugins/cognitive-sparring-partner/SKILL.md`: confirm, break, unify kinds, about 1 in 4 rungs a trap, at least one human-only exercise per rung.
+- Rung mix per flight follows `plugins/mentor/SKILL.md`: confirm, break, unify kinds, about 1 in 4 rungs a trap, at least one human-only exercise per rung.
 
 ## Open decisions
 

@@ -1,6 +1,6 @@
 # openacademy
 
-A curated course library you attach your own AI to. The platform owns the content and its coherence; your agent, running the Cognitive Sparring Partner protocol, owns the conversation. Courses teach by making you commit to a prediction, breaking it, and introducing the concept as the repair.
+A curated course library you attach your own AI to. The platform owns the content and its coherence; your agent, running the Mentor protocol, owns the conversation. Courses teach by making you commit to a prediction, breaking it, and introducing the concept as the repair.
 
 ## Run
 
@@ -13,7 +13,7 @@ Open http://localhost:8080, pick a field, a subfield, and a course, and download
 ## Layout
 
 - `content/<field>/field.yaml`, `<subfield>/subfield.yaml`, `<course>/course.yaml`: the catalog. A course directory holds `syllabus.md` and `rungs/*.md`; a course is flights of rungs, and each rung file has Concept, Commit, Truth, Repair, Exercises, and Twist sections. Subfields without courses are listed as planned.
-- `plugins/cognitive-sparring-partner/`: the teaching protocol (`SKILL.md`) and attach instructions, shipped in every bundle as `addon/`.
+- `plugins/mentor/`: the teaching protocol (`SKILL.md`) and attach instructions, shipped in every bundle as `addon/`.
 - `src/`: FastAPI server (`app.py`), static frontend (`static/`), tests, Dockerfile.
 - `docs/`: foundations, research notes, and design specs.
 
@@ -27,4 +27,4 @@ Tests run against the real `content/` and plugin directories, so they also valid
 
 ## Status
 
-One field (Mathematics) with six subfields and one placeholder course (Algebra / Linear Algebra) whose rungs are lorem ipsum. Its proposed syllabus is `content/mathematics/algebra/linear-algebra/syllabus.md`. The protocol in `plugins/cognitive-sparring-partner/SKILL.md` reflects the current pedagogy design; see `docs/csp-foundations.md` and `docs/research/`.
+One field (Mathematics) with six subfields and one placeholder course (Algebra / Linear Algebra) whose rungs are lorem ipsum. Its proposed syllabus is `content/mathematics/algebra/linear-algebra/syllabus.md`. The protocol in `plugins/mentor/SKILL.md` reflects the current pedagogy design; see `docs/csp-foundations.md` and `docs/research/`.

@@ -7,4 +7,4 @@ services:
       - "8080:8080"
     volumes:
       - ./content:/data/content:ro
-      - ./plugins/cognitive-sparring-partner:/data/plugin:ro
+      - ./plugins/mentor:/data/plugin:ro
