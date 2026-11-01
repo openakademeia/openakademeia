@@ -1,6 +1,6 @@
 .git
 .claude
 docs
-platform/tests
+src/tests
 **/__pycache__
 **/.pytest_cache
