@@ -1,20 +1,10 @@
 import io
 import zipfile
-from pathlib import Path
 
-from fastapi.testclient import TestClient
-
-from app import create_app
-
-REPO = Path(__file__).resolve().parents[2]
-CONTENT = REPO / "content"
-PLUGIN = REPO / "plugins" / "mentor"
 COURSE_URL = "/api/fields/mathematics/subfields/algebra/courses/linear-algebra"
 
 
-def test_catalog_lists_mathematics_field_with_subfields_and_linear_algebra_course():
-    client = TestClient(create_app(CONTENT, PLUGIN))
-
+def test_catalog_lists_mathematics_field_with_subfields_and_linear_algebra_course(client):
     response = client.get("/api/fields")
 
     assert response.status_code == 200
@@ -31,12 +21,10 @@ def test_catalog_lists_mathematics_field_with_subfields_and_linear_algebra_cours
         "probability-and-statistics",
     }
     assert [course["id"] for course in subfields["algebra"]["courses"]] == ["linear-algebra"]
-    assert subfields["analysis"]["courses"] == []
+    assert [course["id"] for course in subfields["analysis"]["courses"]] == ["pro-course"]
 
 
-def test_course_detail_returns_manifest_with_flights_and_location():
-    client = TestClient(create_app(CONTENT, PLUGIN))
-
+def test_course_detail_returns_manifest_with_flights_and_location(client):
     response = client.get(COURSE_URL)
 
     assert response.status_code == 200
@@ -48,9 +36,7 @@ def test_course_detail_returns_manifest_with_flights_and_location():
     assert len(course["flights"][0]["rungs"]) == 3
 
 
-def test_download_bundle_contains_course_syllabus_plugin_and_readme():
-    client = TestClient(create_app(CONTENT, PLUGIN))
-
+def test_download_bundle_contains_course_syllabus_plugin_and_readme(client):
     response = client.get(f"{COURSE_URL}/download")
 
     assert response.status_code == 200
@@ -66,28 +52,29 @@ def test_download_bundle_contains_course_syllabus_plugin_and_readme():
     } <= names
 
 
-def test_download_bundle_is_named_after_the_course():
-    client = TestClient(create_app(CONTENT, PLUGIN))
-
+def test_download_bundle_is_named_after_the_course(client):
     response = client.get(f"{COURSE_URL}/download")
 
     assert response.headers["content-disposition"] == 'attachment; filename="linear-algebra-openacademy.zip"'
 
 
-def test_unknown_course_returns_404_naming_the_full_path():
-    client = TestClient(create_app(CONTENT, PLUGIN))
-
+def test_unknown_course_returns_404_naming_the_full_path(client):
     response = client.get("/api/fields/mathematics/subfields/geometry/courses/topology")
 
     assert response.status_code == 404
     assert response.json() == {"detail": "course not found: mathematics/geometry/topology"}
 
 
-def test_root_serves_the_frontend_page():
-    client = TestClient(create_app(CONTENT, PLUGIN))
-
+def test_root_serves_the_frontend_page(client):
     response = client.get("/")
 
     assert response.status_code == 200
     assert response.headers["content-type"].startswith("text/html")
     assert "openacademy" in response.text
+
+
+def test_download_refuses_courses_above_the_free_tier(client):
+    response = client.get("/api/fields/mathematics/subfields/analysis/courses/pro-course/download")
+
+    assert response.status_code == 402
+    assert response.json() == {"detail": "course tier pro is not downloadable; use the Mentor API with a pro plan"}

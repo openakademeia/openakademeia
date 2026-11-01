@@ -2,6 +2,7 @@ id: linear-algebra
 title: Linear Algebra
 summary: Placeholder course. Vectors, matrices as machines, and why the determinant is an area. Real content replaces this skeleton later.
 status: placeholder
+tier: free
 flights:
   - id: 01-what-a-matrix-does
     title: What a matrix does

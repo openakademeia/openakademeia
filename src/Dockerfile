@@ -6,6 +6,7 @@ COPY src/app.py ./
 COPY src/static ./static
 COPY content /data/content
 COPY plugins/mentor /data/plugin
-ENV OPENACADEMY_CONTENT=/data/content OPENACADEMY_PLUGIN=/data/plugin
+ENV OPENACADEMY_CONTENT=/data/content OPENACADEMY_PLUGIN=/data/plugin DATABASE_URL=sqlite:////data/db/openacademy.db
+RUN mkdir -p /data/db
 EXPOSE 8080
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8080"]
