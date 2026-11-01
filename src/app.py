@@ -348,6 +348,8 @@ def create_app(content_dir: Path, plugin_dir: Path, database_url: str) -> FastAP
     @app.get("/api/fields/{field_id}/subfields/{subfield_id}/courses/{course_id}/download")
     def download_course(field_id: str, subfield_id: str, course_id: str) -> Response:
         course = find_course(field_id, subfield_id, course_id)
+        if course["tier"] != "free":
+            raise HTTPException(402, f"course tier {course['tier']} is not downloadable; use the Mentor API with a {course['tier']} plan")
         return Response(
             content=build_bundle(course, course_dirs[(field_id, subfield_id, course_id)], plugin_dir),
             media_type="application/zip",

@@ -71,3 +71,10 @@ def test_root_serves_the_frontend_page(client):
     assert response.status_code == 200
     assert response.headers["content-type"].startswith("text/html")
     assert "openacademy" in response.text
+
+
+def test_download_refuses_courses_above_the_free_tier(client):
+    response = client.get("/api/fields/mathematics/subfields/analysis/courses/pro-course/download")
+
+    assert response.status_code == 402
+    assert response.json() == {"detail": "course tier pro is not downloadable; use the Mentor API with a pro plan"}
