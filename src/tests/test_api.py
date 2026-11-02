@@ -1,11 +1,14 @@
-import io
-import zipfile
+import pytest
 
-COURSE_URL = "/api/fields/mathematics/subfields/algebra/courses/linear-algebra"
+LEGACY_URLS = [
+    "/api/fields",
+    "/api/fields/mathematics/subfields/algebra/courses/linear-algebra",
+    "/api/fields/mathematics/subfields/algebra/courses/linear-algebra/download",
+]
 
 
-def test_catalog_lists_mathematics_field_with_subfields_and_linear_algebra_course(client):
-    response = client.get("/api/fields")
+def test_catalog_lists_mathematics_field_with_subfields_and_courses(client):
+    response = client.get("/api/v1/catalog")
 
     assert response.status_code == 200
     fields = response.json()
@@ -20,49 +23,23 @@ def test_catalog_lists_mathematics_field_with_subfields_and_linear_algebra_cours
         "discrete",
         "probability-and-statistics",
     }
-    assert [course["id"] for course in subfields["algebra"]["courses"]] == ["linear-algebra"]
+    course = subfields["algebra"]["courses"][0]
+    assert course["id"] == "linear-algebra"
+    assert [flight["id"] for flight in course["flights"]] == ["01-what-a-matrix-does"]
+    assert len(course["flights"][0]["rungs"]) == 3
     assert [course["id"] for course in subfields["analysis"]["courses"]] == ["pro-course"]
 
 
-def test_course_detail_returns_manifest_with_flights_and_location(client):
-    response = client.get(COURSE_URL)
+def test_catalog_never_includes_rung_text(client):
+    body = client.get("/api/v1/catalog").text
 
-    assert response.status_code == 200
-    course = response.json()
-    assert course["title"] == "Linear Algebra"
-    assert course["field"] == "mathematics"
-    assert course["subfield"] == "algebra"
-    assert [flight["id"] for flight in course["flights"]] == ["01-what-a-matrix-does"]
-    assert len(course["flights"][0]["rungs"]) == 3
+    assert "Lorem" not in body
+    assert "text" not in body
 
 
-def test_download_bundle_contains_course_syllabus_plugin_and_readme(client):
-    response = client.get(f"{COURSE_URL}/download")
-
-    assert response.status_code == 200
-    assert response.headers["content-type"] == "application/zip"
-    names = set(zipfile.ZipFile(io.BytesIO(response.content)).namelist())
-    assert {
-        "README.md",
-        "course/course.yaml",
-        "course/syllabus.md",
-        "course/rungs/01-01-vectors-as-arrows.md",
-        "addon/SKILL.md",
-        "addon/README.md",
-    } <= names
-
-
-def test_download_bundle_is_named_after_the_course(client):
-    response = client.get(f"{COURSE_URL}/download")
-
-    assert response.headers["content-disposition"] == 'attachment; filename="linear-algebra-openacademy.zip"'
-
-
-def test_unknown_course_returns_404_naming_the_full_path(client):
-    response = client.get("/api/fields/mathematics/subfields/geometry/courses/topology")
-
-    assert response.status_code == 404
-    assert response.json() == {"detail": "course not found: mathematics/geometry/topology"}
+@pytest.mark.parametrize("url", LEGACY_URLS)
+def test_legacy_catalog_and_download_routes_are_gone(client, url):
+    assert client.get(url).status_code == 404
 
 
 def test_root_serves_the_frontend_page(client):
@@ -73,8 +50,10 @@ def test_root_serves_the_frontend_page(client):
     assert "openacademy" in response.text
 
 
-def test_download_refuses_courses_above_the_free_tier(client):
-    response = client.get("/api/fields/mathematics/subfields/analysis/courses/pro-course/download")
+def test_frontend_points_agents_at_the_v1_catalog_and_mcp_plugin(client):
+    script = client.get("/app.js").text
 
-    assert response.status_code == 402
-    assert response.json() == {"detail": "course tier pro is not downloadable; use the Mentor API with a pro plan"}
+    assert "/api/v1/catalog" in script
+    assert "/api/fields" not in script
+    assert "openacademy-mentor" in script
+    assert "download" not in script.lower()

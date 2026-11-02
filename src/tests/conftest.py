@@ -8,7 +8,6 @@ from app import create_app
 
 REPO = Path(__file__).resolve().parents[2]
 CONTENT = REPO / "content"
-PLUGIN = REPO / "plugins" / "mentor"
 
 PRO_COURSE = """id: pro-course
 title: Pro Course
@@ -39,7 +38,7 @@ def content_dir(tmp_path):
 
 @pytest.fixture
 def client(content_dir, tmp_path):
-    return TestClient(create_app(content_dir, PLUGIN, f"sqlite:///{tmp_path / 'test.db'}"))
+    return TestClient(create_app(content_dir, f"sqlite:///{tmp_path / 'test.db'}"))
 
 
 @pytest.fixture

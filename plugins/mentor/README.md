@@ -1,15 +1,27 @@
-# Mentor addon
+# Mentor
 
-`SKILL.md` is the teaching protocol. It is plain markdown with a short frontmatter header, so it loads as a Claude skill and pastes unchanged into any other agent's instruction slot. The protocol expects a course folder containing `course.yaml` and `rungs/*.md`, which is what the openacademy download gives you.
+The openacademy teaching protocol as an MCP server. It is thin and open: five tools over the openacademy HTTP API (`list_courses`, `start_course`, `next_rung`, `record_attempt`, `progress`) plus `SKILL.md`, which the server hands to your agent as its instructions. Course text and all progress stay on the openacademy server; nothing is written on your machine except a learner token in `~/.openacademy/<host>.token`.
 
-## Attach it
+## Configure
 
-- **Claude Code**: copy this folder to `.claude/skills/mentor/` in the project that holds `course/`, or to `~/.claude/skills/` for all projects.
-- **claude.ai**: upload this folder as a custom skill, or paste the body of `SKILL.md` into a Project's custom instructions and add the course files to the Project.
-- **Cursor**: save the body of `SKILL.md` as `.cursor/rules/mentor.mdc`.
-- **Codex, Gemini CLI, and other AGENTS.md readers**: append the body of `SKILL.md` to `AGENTS.md` (or `GEMINI.md`).
-- **ChatGPT, Gemini web**: paste the body of `SKILL.md` into a custom GPT or Gem's instructions and attach the course files.
+Environment: `OPENACADEMY_URL` (default `http://localhost:8080`), `OPENACADEMY_TOKEN` (optional; otherwise a free learner is created on first use and the token saved).
 
-## Start
+Run it with `uvx`, no install:
 
-Open your agent in the folder that contains `course/` and say: "Start the course in ./course." The agent creates `course/progress.md` and runs the first rung. To continue later, say "Continue the course."
+```
+uvx --from "git+https://github.com/slow42/openacademy#subdirectory=plugins/mentor" openacademy-mentor
+```
+
+- **Claude Code**: `claude mcp add openacademy -e OPENACADEMY_URL=http://localhost:8080 -- uvx --from "git+https://github.com/slow42/openacademy#subdirectory=plugins/mentor" openacademy-mentor`
+- **Cursor** (`.cursor/mcp.json`), **Codex** (`~/.codex/config.toml`), **Gemini CLI** (`~/.gemini/settings.json`): add a stdio server named `openacademy` with the same command, args, and env.
+- **claude.ai, ChatGPT**: need a hosted openacademy URL over streamable HTTP; not available while the server is local-only.
+
+Then say: "Start a course." The agent calls `progress`, then `list_courses` or `next_rung`, and runs the rung loop described in `SKILL.md`.
+
+## Develop
+
+```
+cd plugins/mentor && pip install -e . pytest && pytest
+```
+
+Tests run the real server in-process on a temporary database.

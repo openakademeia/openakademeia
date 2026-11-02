@@ -7,5 +7,4 @@ services:
       - "8080:8080"
     volumes:
       - ./content:/data/content:ro
-      - ./plugins/mentor:/data/plugin:ro
       - ./data:/data/db
