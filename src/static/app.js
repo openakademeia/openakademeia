@@ -53,7 +53,48 @@ function renderCourses(field, subfield) {
 
 const PLUGIN_SOURCE = "git+https://github.com/slow42/openacademy#subdirectory=plugins/mentor";
 
-function connectSnippets(course) {
+function inline(text) {
+  return esc(text)
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*([^*]+)\*/g, "<em>$1</em>");
+}
+
+function markdown(text) {
+  const out = [];
+  let list = null;
+  const closeList = () => {
+    if (list) out.push(`</${list}>`);
+    list = null;
+  };
+  for (const raw of text.split("\n")) {
+    const line = raw.trimEnd();
+    const heading = /^(#{1,6}) (.*)$/.exec(line);
+    const bullet = /^- (.*)$/.exec(line);
+    const number = /^\d+\. (.*)$/.exec(line);
+    if (heading) {
+      closeList();
+      out.push(`<h${heading[1].length}>${inline(heading[2])}</h${heading[1].length}>`);
+    } else if (bullet || number) {
+      const kind = bullet ? "ul" : "ol";
+      if (list !== kind) {
+        closeList();
+        list = kind;
+        out.push(`<${kind}>`);
+      }
+      out.push(`<li>${inline((bullet || number)[1])}</li>`);
+    } else if (line) {
+      closeList();
+      out.push(`<p>${inline(line)}</p>`);
+    } else {
+      closeList();
+    }
+  }
+  closeList();
+  return out.join("");
+}
+
+function renderSetup() {
   const origin = location.origin;
   const uvx = `uvx --from "${PLUGIN_SOURCE}" openacademy-mentor`;
   const claude = `claude mcp add openacademy -e OPENACADEMY_URL=${origin} -- ${uvx}`;
@@ -62,8 +103,16 @@ function connectSnippets(course) {
     null,
     2
   );
-  const ask = `Start the course ${course.field}/${course.subfield}/${course.id}.`;
-  return { claude, json, ask };
+  view.innerHTML = `<h1>Setup</h1>
+    <p>Mentor runs inside the AI you already use. Give it this server once; it signs you up, keeps your progress here, and fetches each rung as you reach it. You need <code>uv</code> installed.</p>
+    <h2>Claude Code</h2>
+    <pre><code>${esc(claude)}</code></pre>
+    <h2>Cursor, Codex, Gemini CLI</h2>
+    <p>Add this to the agent's MCP servers config:</p>
+    <pre><code>${esc(json)}</code></pre>
+    <h2>Then</h2>
+    <p>Pick a course and tell your AI to start it, for example <code>Start the course mathematics/algebra/linear-algebra.</code> Say <code>Continue the course.</code> to resume; your place is kept on this server.</p>
+    <p class="hint">claude.ai and ChatGPT need a public server URL; this one is ${esc(location.hostname)}.</p>`;
 }
 
 function renderCourse(field, subfield, course) {
@@ -74,25 +123,15 @@ function renderCourse(field, subfield, course) {
         .join("")}</ol></li>`
     )
     .join("");
-  const snippets = connectSnippets({ ...course, field: field.id, subfield: subfield.id });
   const tier = course.tier && course.tier !== "free" ? `<span class="badge tier">${esc(course.tier)}</span>` : "";
+  const path = `${field.id}/${subfield.id}/${course.id}`;
   view.innerHTML = `<p class="crumbs"><a href="#/">Fields</a> / <a href="#/${field.id}">${esc(field.title)}</a> / <a href="#/${field.id}/${subfield.id}">${esc(subfield.title)}</a> / ${esc(course.title)}</p>
     <h1>${esc(course.title)}${course.status ? ` <span class="badge">${esc(course.status)}</span>` : ""} ${tier}</h1>
     <p>${esc(course.summary || "")}</p>
+    <p class="start">Tell your AI: <code>Start the course ${esc(path)}.</code> Not connected yet? <a href="#/setup">Setup</a>.</p>
+    ${course.syllabus ? `<section class="syllabus">${markdown(course.syllabus)}</section>` : ""}
     <section>
-      <h2>Connect your AI</h2>
-      <p>Mentor runs inside the AI you already use. Give it this server once; it signs you up, keeps your progress here, and fetches each rung as you reach it.</p>
-      <h3>Claude Code</h3>
-      <pre><code>${esc(snippets.claude)}</code></pre>
-      <h3>Cursor, Codex, Gemini CLI</h3>
-      <p>Add this to the agent's MCP servers config:</p>
-      <pre><code>${esc(snippets.json)}</code></pre>
-      <h3>Then say</h3>
-      <pre><code>${esc(snippets.ask)}</code></pre>
-      <p class="hint">Needs <code>uv</code> installed. claude.ai and ChatGPT need a public server URL; this one is ${esc(location.hostname)}.</p>
-    </section>
-    <section>
-      <h2>Flights</h2>
+      <h2>Flights in the current build</h2>
       <ol class="flights">${flights}</ol>
     </section>`;
 }
@@ -103,6 +142,7 @@ function renderNotFound() {
 
 async function render() {
   const [fieldId, subfieldId, courseId] = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);
+  if (fieldId === "setup") return renderSetup();
   const fields = await loadCatalog();
   if (!fieldId) return renderFields(fields);
   const field = fields.find((f) => f.id === fieldId);

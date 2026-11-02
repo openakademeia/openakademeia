@@ -24,3 +24,9 @@ pre code { background: none; padding: 0; color: inherit; font-size: inherit; }
 h3 { font-size: 1rem; margin: 1.2rem 0 0.4rem; }
 .hint { font-size: 0.85rem; color: #6b6a63; }
 .badge.tier { background: #1b1b1b; color: #fff; }
+header nav { margin-left: auto; display: flex; gap: 1rem; }
+header nav a { color: #4a4943; text-decoration: none; font-weight: 600; }
+.syllabus h1 { display: none; }
+.syllabus h2 { margin-top: 1.6rem; }
+.syllabus h3 { font-size: 1.05rem; }
+.start { padding: 0.6rem 0.9rem; background: #f4f3ee; border-radius: 8px; }

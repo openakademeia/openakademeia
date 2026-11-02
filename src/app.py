@@ -120,6 +120,8 @@ def load_catalog(content_dir: Path) -> tuple[list[dict], dict[CourseKey, Path]]:
                 course["field"] = field["id"]
                 course["subfield"] = subfield["id"]
                 course.setdefault("tier", "free")
+                syllabus = course_manifest.parent / "syllabus.md"
+                course["syllabus"] = syllabus.read_text() if syllabus.exists() else None
                 subfield["courses"].append(course)
                 course_dirs[(field["id"], subfield["id"], course["id"])] = course_manifest.parent
             field["subfields"].append(subfield)
