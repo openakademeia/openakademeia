@@ -1,3 +1,4 @@
+import stat
 import pytest
 
 from mentor.client import MentorClient, MentorError
@@ -13,6 +14,13 @@ def test_first_use_signs_up_and_persists_the_token(http, token_path):
     assert progress["plan"] == "free"
     assert token_path.read_text().strip() == mentor.token
     assert MentorClient(http, token_path).token == mentor.token
+
+
+def test_token_file_and_directory_are_private_to_the_user(http, token_path):
+    MentorClient(http, token_path)
+
+    assert stat.S_IMODE(token_path.stat().st_mode) == 0o600
+    assert stat.S_IMODE(token_path.parent.stat().st_mode) == 0o700
 
 
 def test_list_courses_flattens_the_catalog(mentor):

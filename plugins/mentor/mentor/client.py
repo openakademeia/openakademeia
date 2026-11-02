@@ -26,10 +26,14 @@ class MentorClient:
 
     def _load_or_create_token(self) -> str:
         if self.token_path.exists():
+            self.token_path.chmod(0o600)
             return self.token_path.read_text().strip()
         token = self._call("POST", "/api/v1/learners", auth=False)["token"]
         self.token_path.parent.mkdir(parents=True, exist_ok=True)
-        self.token_path.write_text(token + "\n")
+        self.token_path.parent.chmod(0o700)
+        fd = os.open(self.token_path, os.O_WRONLY | os.O_CREAT | os.O_TRUNC, 0o600)
+        with os.fdopen(fd, "w") as handle:
+            handle.write(token + "\n")
         return token
 
     def _call(self, method: str, path: str, auth: bool = True, **kwargs) -> dict | list:
