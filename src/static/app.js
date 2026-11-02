@@ -104,15 +104,15 @@ function renderSetup() {
     2
   );
   view.innerHTML = `<h1>Setup</h1>
-    <p>Mentor runs inside the AI you already use. Give it this server once; it signs you up, keeps your progress here, and fetches each rung as you reach it. You need <code>uv</code> installed.</p>
+    <p>Mentor runs inside the AI you already use. Point it at this server once. After that it signs you up and fetches each rung as you reach it, and your progress stays on this server. You need <code>uv</code> on your machine.</p>
     <h2>Claude Code</h2>
     <pre><code>${esc(claude)}</code></pre>
     <h2>Cursor, Codex, Gemini CLI</h2>
     <p>Add this to the agent's MCP servers config:</p>
     <pre><code>${esc(json)}</code></pre>
-    <h2>Then</h2>
-    <p>Pick a course and tell your AI to start it, for example <code>Start the course mathematics/algebra/linear-algebra.</code> Say <code>Continue the course.</code> to resume; your place is kept on this server.</p>
-    <p class="hint">claude.ai and ChatGPT need a public server URL; this one is ${esc(location.hostname)}.</p>`;
+    <h2>Start a course</h2>
+    <p>Pick a course and tell your AI to start it, for example <code>Start the course mathematics/algebra/linear-algebra.</code> To pick up where you left off, say <code>Continue the course.</code> This server remembers your place.</p>
+    <p class="hint">claude.ai and ChatGPT can only reach a public server. This one is at ${esc(location.hostname)}.</p>`;
 }
 
 function renderCourse(field, subfield, course) {
