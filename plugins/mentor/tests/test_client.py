@@ -36,33 +36,33 @@ def test_start_course_enrolls_and_returns_the_first_rung(mentor):
 
     assert started["enrollment_id"] == 1
     assert started["done"] is False
-    assert started["rung"]["id"] == "01-vectors-as-arrows"
-    assert started["rung"]["text"].startswith("# Vectors as arrows")
+    assert started["rung"]["id"] == "01-two-numbers-one-arrow"
+    assert started["rung"]["text"].startswith("# Two numbers, one arrow")
 
 
 def test_start_course_twice_resumes_the_same_enrollment(mentor):
     first = mentor.start_course(*COURSE)
-    mentor.record_attempt(first["enrollment_id"], "01-vectors-as-arrows", "guess", 2, "wrong")
+    mentor.record_attempt(first["enrollment_id"], "01-two-numbers-one-arrow", "guess", 2, "wrong")
 
     resumed = mentor.start_course(*COURSE)
 
     assert resumed["enrollment_id"] == first["enrollment_id"]
-    assert resumed["rung"]["id"] == "02-matrix-as-machine"
+    assert resumed["rung"]["id"] == "02-tip-to-tail"
 
 
 def test_record_attempt_then_next_rung_advances(mentor):
     enrollment_id = mentor.start_course(*COURSE)["enrollment_id"]
 
-    attempt = mentor.record_attempt(enrollment_id, "01-vectors-as-arrows", "lands at (2,1)", 3, "correct", assisted=False)
+    attempt = mentor.record_attempt(enrollment_id, "01-two-numbers-one-arrow", "lands at (2,1)", 3, "correct", assisted=False)
     following = mentor.next_rung(enrollment_id)
 
-    assert attempt["rung_id"] == "01-vectors-as-arrows"
-    assert following["rung"]["id"] == "02-matrix-as-machine"
+    assert attempt["rung_id"] == "01-two-numbers-one-arrow"
+    assert following["rung"]["id"] == "02-tip-to-tail"
 
 
 def test_progress_reports_streak_and_enrollments(mentor):
     enrollment_id = mentor.start_course(*COURSE)["enrollment_id"]
-    mentor.record_attempt(enrollment_id, "01-vectors-as-arrows", "x", 1, "wrong")
+    mentor.record_attempt(enrollment_id, "01-two-numbers-one-arrow", "x", 1, "wrong")
 
     progress = mentor.progress()
 
