@@ -41,4 +41,4 @@ Server tests run against the real `content/` plus a synthetic pro-tier course, o
 
 ## Status
 
-One field (Mathematics) with six subfields and one placeholder course (Algebra / Linear Algebra) whose rungs are lorem ipsum. Its proposed syllabus is `content/mathematics/algebra/linear-algebra/syllabus.md`. Mentor drives the API end to end; `docs/superpowers/specs/2026-11-02-stateful-platform-design.md` tracks what is left (dashboard, entitlement UI, hosted signup). See also `docs/csp-foundations.md` and `docs/research/`.
+One field (Mathematics) with six subfields and one course, Algebra / Linear Algebra: syllabus approved, chapter 1 (five rungs) written, chapters 2 to 14 and the epilogue listed as planned flights. Syllabus: `content/mathematics/algebra/linear-algebra/syllabus.md`. Mentor drives the API end to end; `docs/superpowers/specs/2026-11-02-stateful-platform-design.md` tracks what is left (dashboard, entitlement UI, hosted signup). See also `docs/csp-foundations.md` and `docs/research/`.

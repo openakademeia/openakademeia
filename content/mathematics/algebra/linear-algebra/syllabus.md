@@ -1,6 +1,6 @@
-# Linear Algebra: proposed syllabus
+# Linear Algebra: syllabus
 
-Status: proposed on 2026-10-07, not yet approved. Open decisions are at the end. Once approved, each chapter becomes one flight in `course.yaml` next to this file and the placeholder rungs are replaced.
+Status: approved on 2026-11-02 (proposed 2026-10-07). Each chapter is one flight in `course.yaml` next to this file; chapter 1 is written, the rest are listed as planned flights with no rungs yet.
 
 ## Sources
 
@@ -60,10 +60,10 @@ Each chapter is one flight of 3 to 5 rungs, small enough that one sitting finish
 - Interactive artifacts matter most in chapters 3, 4, 8, 12, and 14, where the claim is about a picture.
 - Rung mix per flight follows `plugins/mentor/SKILL.md`: confirm, break, unify kinds, about 1 in 4 rungs a trap, at least one human-only exercise per rung.
 
-## Open decisions
+## Decisions
 
-1. Keep, cut, or reorder any chapter. Candidate merges if 14 feels long: 9 with 10, or 13 into 12.
-2. Geometry-first order (above) versus the equations-first order both books use.
-3. Hefferon's license, before any of his exercises are adapted.
+1. All 14 chapters and the epilogue kept, in this order (approved 2026-11-02). Merging 9 with 10 or 13 into 12 stays an option if the middle drags.
+2. Geometry-first order, not the equations-first order both books use.
+3. Hefferon's license is still unverified; nothing of his is adapted yet. Verify before borrowing any exercise.
 
-Next step once approved: write chapter 1 in full and test the rung loop on it before scaling.
+Next: run chapter 1 through the rung loop with a real learner, fix what drags, then write chapter 2.

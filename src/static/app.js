@@ -118,9 +118,12 @@ function renderSetup() {
 function renderCourse(field, subfield, course) {
   const flights = (course.flights || [])
     .map(
-      (f) => `<li><strong>${esc(f.title)}</strong><ol>${(f.rungs || [])
-        .map((r) => `<li>${esc(r.title)} <span class="kind">${esc(r.kind)}</span></li>`)
-        .join("")}</ol></li>`
+      (f) =>
+        `<li><strong>${esc(f.title)}</strong>${
+          (f.rungs || []).length
+            ? `<ol>${f.rungs.map((r) => `<li>${esc(r.title)} <span class="kind">${esc(r.kind)}</span></li>`).join("")}</ol>`
+            : ` <span class="kind">planned</span>`
+        }</li>`
     )
     .join("");
   const tier = course.tier && course.tier !== "free" ? `<span class="badge tier">${esc(course.tier)}</span>` : "";
@@ -131,7 +134,7 @@ function renderCourse(field, subfield, course) {
     <p class="start">Tell your AI: <code>Start the course ${esc(path)}.</code> Not connected yet? <a href="#/setup">Setup</a>.</p>
     ${course.syllabus ? `<section class="syllabus">${markdown(course.syllabus)}</section>` : ""}
     <section>
-      <h2>Flights in the current build</h2>
+      <h2>Flights</h2>
       <ol class="flights">${flights}</ol>
     </section>`;
 }

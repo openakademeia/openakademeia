@@ -25,8 +25,10 @@ def test_catalog_lists_mathematics_field_with_subfields_and_courses(client):
     }
     course = subfields["algebra"]["courses"][0]
     assert course["id"] == "linear-algebra"
-    assert [flight["id"] for flight in course["flights"]] == ["01-what-a-matrix-does"]
-    assert len(course["flights"][0]["rungs"]) == 3
+    assert len(course["flights"]) == 15
+    assert course["flights"][0]["id"] == "01-arrows-and-columns"
+    assert [rung["kind"] for rung in course["flights"][0]["rungs"]] == ["confirm", "confirm", "break", "confirm", "unify"]
+    assert course["flights"][1]["rungs"] == []
     assert [course["id"] for course in subfields["analysis"]["courses"]] == ["pro-course"]
 
 
@@ -42,6 +44,7 @@ def test_catalog_never_includes_rung_text(client):
     body = client.get("/api/v1/catalog").text
 
     assert "Lorem" not in body
+    assert "skewed grid" not in body
     assert '"text"' not in body
 
 

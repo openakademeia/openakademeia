@@ -1,21 +1,71 @@
 id: linear-algebra
 title: Linear Algebra
-summary: Placeholder course. Vectors, matrices as machines, and why the determinant is an area. Real content replaces this skeleton later.
-status: placeholder
+summary: "From arrows to the singular value decomposition, geometry first. Each chapter is built around a belief you probably hold and a rung that breaks it. No calculus, no proof experience, no programming assumed."
+status: in progress
 tier: free
 flights:
-  - id: 01-what-a-matrix-does
-    title: What a matrix does
+  - id: 01-arrows-and-columns
+    title: Arrows and columns
     rungs:
-      - id: 01-vectors-as-arrows
-        title: Vectors as arrows
+      - id: 01-two-numbers-one-arrow
+        title: Two numbers, one arrow
         kind: confirm
-        file: rungs/01-01-vectors-as-arrows.md
-      - id: 02-matrix-as-machine
-        title: A matrix is a machine
+        file: rungs/01-01-two-numbers-one-arrow.md
+      - id: 02-tip-to-tail
+        title: Tip to tail
+        kind: confirm
+        file: rungs/01-02-tip-to-tail.md
+      - id: 03-reaching-every-point
+        title: Reaching every point
         kind: break
-        file: rungs/01-02-matrix-as-machine.md
-      - id: 03-determinant-as-area
-        title: Determinant as area
+        file: rungs/01-03-reaching-every-point.md
+      - id: 04-when-arrows-agree
+        title: When arrows agree
+        kind: confirm
+        file: rungs/01-04-when-arrows-agree.md
+      - id: 05-two-views-one-thing
+        title: Two views, one thing
         kind: unify
-        file: rungs/01-03-determinant-as-area.md
+        file: rungs/01-05-two-views-one-thing.md
+  - id: 02-reach-and-redundancy
+    title: Reach and redundancy
+    rungs: []
+  - id: 03-a-matrix-is-a-machine
+    title: A matrix is a machine
+    rungs: []
+  - id: 04-composition-is-multiplication
+    title: Composition is multiplication
+    rungs: []
+  - id: 05-the-reach-question-answered
+    title: The reach question, answered
+    rungs: []
+  - id: 06-what-it-reaches-and-what-it-crushes
+    title: What it reaches and what it crushes
+    rungs: []
+  - id: 07-undoing
+    title: Undoing
+    rungs: []
+  - id: 08-the-determinant-is-a-stretch-factor
+    title: The determinant is a stretch factor
+    rungs: []
+  - id: 09-length-angle-perpendicular
+    title: Length, angle, perpendicular
+    rungs: []
+  - id: 10-the-closest-answer
+    title: The closest answer
+    rungs: []
+  - id: 11-coordinates-are-a-choice
+    title: Coordinates are a choice
+    rungs: []
+  - id: 12-directions-the-machine-does-not-turn
+    title: Directions the machine does not turn
+    rungs: []
+  - id: 13-the-long-run
+    title: The long run
+    rungs: []
+  - id: 14-every-matrix-is-rotate-stretch-rotate
+    title: Every matrix is rotate, stretch, rotate
+    rungs: []
+  - id: 15-it-was-never-about-arrows
+    title: "Epilogue: it was never about arrows"
+    rungs: []
