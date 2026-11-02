@@ -3,7 +3,7 @@ let catalogPromise = null;
 
 function loadCatalog() {
   if (!catalogPromise) {
-    catalogPromise = fetch("/api/fields").then((r) => r.json());
+    catalogPromise = fetch("/api/v1/catalog").then((r) => r.json());
   }
   return catalogPromise;
 }
@@ -51,30 +51,91 @@ function renderCourses(field, subfield) {
     <div class="cards">${cards}</div>`;
 }
 
+const PLUGIN_SOURCE = "git+https://github.com/slow42/openacademy#subdirectory=plugins/mentor";
+
+function inline(text) {
+  return esc(text)
+    .replace(/`([^`]+)`/g, "<code>$1</code>")
+    .replace(/\*\*([^*]+)\*\*/g, "<strong>$1</strong>")
+    .replace(/\*([^*]+)\*/g, "<em>$1</em>");
+}
+
+function markdown(text) {
+  const out = [];
+  let list = null;
+  const closeList = () => {
+    if (list) out.push(`</${list}>`);
+    list = null;
+  };
+  for (const raw of text.split("\n")) {
+    const line = raw.trimEnd();
+    const heading = /^(#{1,6}) (.*)$/.exec(line);
+    const bullet = /^- (.*)$/.exec(line);
+    const number = /^\d+\. (.*)$/.exec(line);
+    if (heading) {
+      closeList();
+      out.push(`<h${heading[1].length}>${inline(heading[2])}</h${heading[1].length}>`);
+    } else if (bullet || number) {
+      const kind = bullet ? "ul" : "ol";
+      if (list !== kind) {
+        closeList();
+        list = kind;
+        out.push(`<${kind}>`);
+      }
+      out.push(`<li>${inline((bullet || number)[1])}</li>`);
+    } else if (line) {
+      closeList();
+      out.push(`<p>${inline(line)}</p>`);
+    } else {
+      closeList();
+    }
+  }
+  closeList();
+  return out.join("");
+}
+
+function renderSetup() {
+  const origin = location.origin;
+  const uvx = `uvx --from "${PLUGIN_SOURCE}" openacademy-mentor`;
+  const claude = `claude mcp add openacademy -e OPENACADEMY_URL=${origin} -- ${uvx}`;
+  const json = JSON.stringify(
+    { mcpServers: { openacademy: { command: "uvx", args: ["--from", PLUGIN_SOURCE, "openacademy-mentor"], env: { OPENACADEMY_URL: origin } } } },
+    null,
+    2
+  );
+  view.innerHTML = `<h1>Setup</h1>
+    <p>Mentor runs inside the AI you already use. Give it this server once; it signs you up, keeps your progress here, and fetches each rung as you reach it. You need <code>uv</code> installed.</p>
+    <h2>Claude Code</h2>
+    <pre><code>${esc(claude)}</code></pre>
+    <h2>Cursor, Codex, Gemini CLI</h2>
+    <p>Add this to the agent's MCP servers config:</p>
+    <pre><code>${esc(json)}</code></pre>
+    <h2>Then</h2>
+    <p>Pick a course and tell your AI to start it, for example <code>Start the course mathematics/algebra/linear-algebra.</code> Say <code>Continue the course.</code> to resume; your place is kept on this server.</p>
+    <p class="hint">claude.ai and ChatGPT need a public server URL; this one is ${esc(location.hostname)}.</p>`;
+}
+
 function renderCourse(field, subfield, course) {
-  const downloadUrl = `/api/fields/${field.id}/subfields/${subfield.id}/courses/${course.id}/download`;
   const flights = (course.flights || [])
     .map(
-      (f) => `<li><strong>${esc(f.title)}</strong><ol>${(f.rungs || [])
-        .map((r) => `<li>${esc(r.title)} <span class="kind">${esc(r.kind)}</span></li>`)
-        .join("")}</ol></li>`
+      (f) =>
+        `<li><strong>${esc(f.title)}</strong>${
+          (f.rungs || []).length
+            ? `<ol>${f.rungs.map((r) => `<li>${esc(r.title)} <span class="kind">${esc(r.kind)}</span></li>`).join("")}</ol>`
+            : ` <span class="kind">planned</span>`
+        }</li>`
     )
     .join("");
+  const tier = course.tier && course.tier !== "free" ? `<span class="badge tier">${esc(course.tier)}</span>` : "";
+  const path = `${field.id}/${subfield.id}/${course.id}`;
   view.innerHTML = `<p class="crumbs"><a href="#/">Fields</a> / <a href="#/${field.id}">${esc(field.title)}</a> / <a href="#/${field.id}/${subfield.id}">${esc(subfield.title)}</a> / ${esc(course.title)}</p>
-    <h1>${esc(course.title)}${course.status ? ` <span class="badge">${esc(course.status)}</span>` : ""}</h1>
+    <h1>${esc(course.title)}${course.status ? ` <span class="badge">${esc(course.status)}</span>` : ""} ${tier}</h1>
     <p>${esc(course.summary || "")}</p>
-    <a class="button" href="${downloadUrl}" download>Download for your agent</a>
+    <p class="start">Tell your AI: <code>Start the course ${esc(path)}.</code> Not connected yet? <a href="#/setup">Setup</a>.</p>
+    ${course.syllabus ? `<section class="syllabus">${markdown(course.syllabus)}</section>` : ""}
     <section>
       <h2>Flights</h2>
       <ol class="flights">${flights}</ol>
-    </section>
-    <section>
-      <h2>Attach it to your AI</h2>
-      <ol>
-        <li>Unzip the download. It contains <code>course/</code> and <code>addon/</code>.</li>
-        <li>Follow <code>addon/README.md</code> for your agent: Claude Code, claude.ai, Cursor, Codex, Gemini, or ChatGPT.</li>
-        <li>Open your agent in that folder and say: <em>Start the course in ./course.</em></li>
-      </ol>
     </section>`;
 }
 
@@ -84,6 +145,7 @@ function renderNotFound() {
 
 async function render() {
   const [fieldId, subfieldId, courseId] = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);
+  if (fieldId === "setup") return renderSetup();
   const fields = await loadCatalog();
   if (!fieldId) return renderFields(fields);
   const field = fields.find((f) => f.id === fieldId);

@@ -1,16 +1,13 @@
 """openacademy server: catalog, learner state, progress, and the Mentor API."""
 
-import io
 import os
 import secrets
-import zipfile
 from datetime import date, datetime, timezone
 from pathlib import Path
 from typing import Literal
 
 import yaml
 from fastapi import Depends, FastAPI, Header, HTTPException
-from fastapi.responses import Response
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 from sqlalchemy import (
@@ -32,20 +29,10 @@ from sqlalchemy.engine import Engine
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_CONTENT = REPO_ROOT / "content"
-DEFAULT_PLUGIN = REPO_ROOT / "plugins" / "mentor"
 DEFAULT_DATABASE_URL = f"sqlite:///{REPO_ROOT / '.openacademy.db'}"
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 CourseKey = tuple[str, str, str]
-
-BUNDLE_README = """# {title} (openacademy bundle)
-
-`course/` holds the course package and `addon/` holds the Mentor protocol your agent runs.
-
-1. Attach the addon to your agent: see `addon/README.md` for Claude Code, claude.ai, Cursor, Codex, Gemini, and ChatGPT.
-2. Open your agent in this folder and say: "Start the course in ./course."
-3. Later, say "Continue the course." Progress lives in `course/progress.md`, which your agent maintains.
-"""
 
 metadata = MetaData()
 
@@ -133,6 +120,8 @@ def load_catalog(content_dir: Path) -> tuple[list[dict], dict[CourseKey, Path]]:
                 course["field"] = field["id"]
                 course["subfield"] = subfield["id"]
                 course.setdefault("tier", "free")
+                syllabus = course_manifest.parent / "syllabus.md"
+                course["syllabus"] = syllabus.read_text() if syllabus.exists() else None
                 subfield["courses"].append(course)
                 course_dirs[(field["id"], subfield["id"], course["id"])] = course_manifest.parent
             field["subfields"].append(subfield)
@@ -158,21 +147,6 @@ def streak_weeks(days: list[date], today: date) -> int:
     return count
 
 
-def _add_tree(archive: zipfile.ZipFile, root: Path, prefix: str) -> None:
-    for path in sorted(root.rglob("*")):
-        if path.is_file():
-            archive.write(path, f"{prefix}/{path.relative_to(root).as_posix()}")
-
-
-def build_bundle(course: dict, course_dir: Path, plugin_dir: Path) -> bytes:
-    buffer = io.BytesIO()
-    with zipfile.ZipFile(buffer, "w", zipfile.ZIP_DEFLATED) as archive:
-        archive.writestr("README.md", BUNDLE_README.format(title=course["title"]))
-        _add_tree(archive, course_dir, "course")
-        _add_tree(archive, plugin_dir, "addon")
-    return buffer.getvalue()
-
-
 def _make_engine(database_url: str) -> Engine:
     connect_args = {"check_same_thread": False} if database_url.startswith("sqlite") else {}
     engine = create_engine(database_url, connect_args=connect_args)
@@ -180,7 +154,7 @@ def _make_engine(database_url: str) -> Engine:
     return engine
 
 
-def create_app(content_dir: Path, plugin_dir: Path, database_url: str) -> FastAPI:
+def create_app(content_dir: Path, database_url: str) -> FastAPI:
     catalog, course_dirs = load_catalog(content_dir)
     courses = {
         (field["id"], subfield["id"], course["id"]): course
@@ -337,31 +311,11 @@ def create_app(content_dir: Path, plugin_dir: Path, database_url: str) -> FastAP
             "enrollments": [enrollment_summary(dict(row)) for row in rows],
         }
 
-    @app.get("/api/fields")
-    def list_fields() -> list[dict]:
-        return catalog
-
-    @app.get("/api/fields/{field_id}/subfields/{subfield_id}/courses/{course_id}")
-    def get_course(field_id: str, subfield_id: str, course_id: str) -> dict:
-        return find_course(field_id, subfield_id, course_id)
-
-    @app.get("/api/fields/{field_id}/subfields/{subfield_id}/courses/{course_id}/download")
-    def download_course(field_id: str, subfield_id: str, course_id: str) -> Response:
-        course = find_course(field_id, subfield_id, course_id)
-        if course["tier"] != "free":
-            raise HTTPException(402, f"course tier {course['tier']} is not downloadable; use the Mentor API with a {course['tier']} plan")
-        return Response(
-            content=build_bundle(course, course_dirs[(field_id, subfield_id, course_id)], plugin_dir),
-            media_type="application/zip",
-            headers={"Content-Disposition": f'attachment; filename="{course_id}-openacademy.zip"'},
-        )
-
     app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
     return app
 
 
 app = create_app(
     Path(os.environ.get("OPENACADEMY_CONTENT", DEFAULT_CONTENT)),
-    Path(os.environ.get("OPENACADEMY_PLUGIN", DEFAULT_PLUGIN)),
     os.environ.get("DATABASE_URL", DEFAULT_DATABASE_URL),
 )
