@@ -2,11 +2,9 @@ Fourteen chapters and an epilogue, taught geometry first: arrows and the machine
 
 ## What you need
 
-Almost nothing, and the first two rungs double as the check. You should be able to solve 2x + 3 = 7, multiply out brackets, and handle fractions and negatives. You should be able to plot a point from two numbers and read the numbers back off a plot. Pythagoras comes up in chapter 9, and the rung that needs it reminds you how it goes.
+School algebra and the coordinate plane. You should be able to solve 2x + 3 = 7, multiply out brackets, handle fractions and negatives, plot a point from two numbers, and read the numbers back off a plot. No other prior knowledge is required. Pythagoras comes up in chapter 9, and the rung that needs it reminds you how it goes.
 
-You do not need calculus, trigonometry, complex numbers, programming, or any experience writing proofs. The quarter-turn rotations in the early chapters need no trigonometry, and the one rung with a general rotation reminds you that cosine and sine are the coordinates of a point on the unit circle. Everything stays over the real numbers, so "a rotation has no real eigenvector" is a surprise the course plans for, not a gap in what you know. Writing proofs is something you come out with, not something you bring in.
-
-The one thing you do need is a willingness to commit to an answer before you see the right one. Mentor holds you to that.
+The first two rungs double as the check. Beyond that, the one thing the course asks of you is to commit to an answer before you see the right one. Mentor holds you to that.
 
 ## Chapters
 
