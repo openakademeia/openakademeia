@@ -93,6 +93,18 @@ class AttemptIn(BaseModel):
     artifact_result: str | None = None
 
 
+class ShellStaticFiles(StaticFiles):
+    """Serves the app shell with no-cache so a redeploy shows up on the next load, not when the browser's heuristic expires."""
+
+    REVALIDATE = (".html", ".js", ".css")
+
+    def file_response(self, full_path, *args, **kwargs):
+        response = super().file_response(full_path, *args, **kwargs)
+        if str(full_path).endswith(self.REVALIDATE):
+            response.headers["Cache-Control"] = "no-cache"
+        return response
+
+
 def _now() -> datetime:
     return datetime.now(timezone.utc).replace(tzinfo=None)
 
@@ -360,7 +372,7 @@ def create_app(content_dir: Path, database_url: str) -> FastAPI:
             "enrollments": [enrollment_summary(dict(row)) for row in rows],
         }
 
-    app.mount("/", StaticFiles(directory=STATIC_DIR, html=True), name="static")
+    app.mount("/", ShellStaticFiles(directory=STATIC_DIR, html=True), name="static")
     return app
 
 

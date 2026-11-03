@@ -389,7 +389,13 @@ function renderSetup() {
     2
   );
   view.innerHTML = `<div class="page">
-    ${pageHead("Connect your agent", null, "Plato runs inside the AI you already use. Point it at this server once; after that it signs you up and fetches each lesson as you reach it.")}
+    <header class="page-head">
+      <h1>Connect your agent</h1>
+      <div class="plato-intro">
+        <span class="plato-mark" role="img" aria-label="Plato"></span>
+        <p class="lead">Plato runs inside the AI you already use. Point it at this server once; after that it signs you up and fetches each lesson as you reach it.</p>
+      </div>
+    </header>
     <div class="setup">
       <section>
         <h2>Claude Code</h2>

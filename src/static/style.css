@@ -240,6 +240,9 @@ a.row:hover { background: #fff; transform: translateX(4px); }
 .prose li::marker { color: var(--ink-soft); }
 .prose strong { font-weight: 600; }
 
+.plato-intro { display: flex; align-items: center; gap: 20px; }
+/* Same mask technique as .mark, so Plato takes the ink colour. */
+.plato-mark { flex: none; width: 88px; height: 88px; background: currentColor; -webkit-mask: url(/media/plato.png) center / contain no-repeat; mask: url(/media/plato.png) center / contain no-repeat; }
 .setup { display: grid; gap: 56px; max-width: 860px; }
 .setup section { display: grid; gap: 16px; }
 .setup h2 { font-size: var(--t-h3); line-height: 1.05; letter-spacing: -0.02em; }
