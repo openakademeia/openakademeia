@@ -116,27 +116,13 @@ function renderSetup() {
 }
 
 function renderCourse(field, subfield, course) {
-  const flights = (course.flights || [])
-    .map(
-      (f) =>
-        `<li><strong>${esc(f.title)}</strong>${
-          (f.rungs || []).length
-            ? `<ol>${f.rungs.map((r) => `<li>${esc(r.title)} <span class="kind">${esc(r.kind)}</span></li>`).join("")}</ol>`
-            : ` <span class="kind">planned</span>`
-        }</li>`
-    )
-    .join("");
   const tier = course.tier && course.tier !== "free" ? `<span class="badge tier">${esc(course.tier)}</span>` : "";
   const path = `${field.id}/${subfield.id}/${course.id}`;
   view.innerHTML = `<p class="crumbs"><a href="#/">Fields</a> / <a href="#/${field.id}">${esc(field.title)}</a> / <a href="#/${field.id}/${subfield.id}">${esc(subfield.title)}</a> / ${esc(course.title)}</p>
     <h1>${esc(course.title)}${course.status ? ` <span class="badge">${esc(course.status)}</span>` : ""} ${tier}</h1>
     <p>${esc(course.summary || "")}</p>
     <p class="start">Tell your AI: <code>Start the course ${esc(path)}.</code> Not connected yet? <a href="#/setup">Setup</a>.</p>
-    ${course.syllabus ? `<section class="syllabus">${markdown(course.syllabus)}</section>` : ""}
-    <section>
-      <h2>Flights</h2>
-      <ol class="flights">${flights}</ol>
-    </section>`;
+    ${course.syllabus ? `<section class="syllabus">${markdown(course.syllabus)}</section>` : ""}`;
 }
 
 function renderNotFound() {
