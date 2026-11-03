@@ -63,7 +63,7 @@ attempts = Table(
     Column("id", Integer, primary_key=True),
     Column("enrollment_id", Integer, ForeignKey("enrollments.id"), nullable=False),
     Column("flight_id", String(64), nullable=False),
-    Column("rung_id", String(64), nullable=False),
+    Column("lesson_id", String(64), nullable=False),
     Column("commit", Text, nullable=False),
     Column("confidence", Integer, nullable=False),
     Column("outcome", String(16), nullable=False),
@@ -82,7 +82,7 @@ class EnrollIn(BaseModel):
 
 
 class AttemptIn(BaseModel):
-    rung_id: str
+    lesson_id: str
     commit: str
     confidence: int = Field(ge=1, le=4)
     outcome: Literal["correct", "wrong"]
@@ -129,8 +129,8 @@ def load_catalog(content_dir: Path) -> tuple[list[dict], dict[CourseKey, Path]]:
     return fields, course_dirs
 
 
-def rung_sequence(course: dict) -> list[tuple[dict, dict]]:
-    return [(flight, rung) for flight in course.get("flights", []) for rung in flight.get("rungs", [])]
+def lesson_sequence(course: dict) -> list[tuple[dict, dict]]:
+    return [(flight, lesson) for flight in course.get("flights", []) for lesson in flight.get("lessons", [])]
 
 
 def streak_weeks(days: list[date], today: date) -> int:
@@ -196,28 +196,28 @@ def create_app(content_dir: Path, database_url: str) -> FastAPI:
             raise HTTPException(404, f"enrollment not found: {enrollment_id}")
         return dict(row)
 
-    def completed_rungs(enrollment_id: int) -> set[str]:
+    def completed_lessons(enrollment_id: int) -> set[str]:
         with engine.connect() as conn:
-            rows = conn.execute(select(attempts.c.rung_id).where(attempts.c.enrollment_id == enrollment_id)).all()
+            rows = conn.execute(select(attempts.c.lesson_id).where(attempts.c.enrollment_id == enrollment_id)).all()
         return {row[0] for row in rows}
 
-    def next_rung(enrollment: dict) -> tuple[dict, dict] | None:
+    def next_lesson(enrollment: dict) -> tuple[dict, dict] | None:
         course = courses[(enrollment["field"], enrollment["subfield"], enrollment["course"])]
-        done = completed_rungs(enrollment["id"])
-        return next(((flight, rung) for flight, rung in rung_sequence(course) if rung["id"] not in done), None)
+        done = completed_lessons(enrollment["id"])
+        return next(((flight, lesson) for flight, lesson in lesson_sequence(course) if lesson["id"] not in done), None)
 
     def enrollment_summary(enrollment: dict) -> dict:
         course = courses[(enrollment["field"], enrollment["subfield"], enrollment["course"])]
-        upcoming = next_rung(enrollment)
+        upcoming = next_lesson(enrollment)
         return {
             "id": enrollment["id"],
             "field": enrollment["field"],
             "subfield": enrollment["subfield"],
             "course": enrollment["course"],
             "title": course["title"],
-            "completed": len(completed_rungs(enrollment["id"])),
-            "total": len(rung_sequence(course)),
-            "next_rung": upcoming[1]["id"] if upcoming else None,
+            "completed": len(completed_lessons(enrollment["id"])),
+            "total": len(lesson_sequence(course)),
+            "next_lesson": upcoming[1]["id"] if upcoming else None,
         }
 
     @app.get("/api/v1/catalog")
@@ -268,19 +268,19 @@ def create_app(content_dir: Path, database_url: str) -> FastAPI:
         course = courses[(enrollment["field"], enrollment["subfield"], enrollment["course"])]
         if PLAN_RANK[course["tier"]] > PLAN_RANK[learner["plan"]]:
             raise HTTPException(402, f"course tier {course['tier']} requires a {course['tier']} plan")
-        upcoming = next_rung(enrollment)
+        upcoming = next_lesson(enrollment)
         if upcoming is None:
             return {"done": True}
-        flight, rung = upcoming
+        flight, lesson = upcoming
         course_dir = course_dirs[(enrollment["field"], enrollment["subfield"], enrollment["course"])]
         return {
             "done": False,
             "flight": {"id": flight["id"], "title": flight["title"]},
-            "rung": {
-                "id": rung["id"],
-                "title": rung["title"],
-                "kind": rung["kind"],
-                "text": (course_dir / rung["file"]).read_text(),
+            "lesson": {
+                "id": lesson["id"],
+                "title": lesson["title"],
+                "kind": lesson["kind"],
+                "text": (course_dir / lesson["file"]).read_text(),
             },
         }
 
@@ -288,9 +288,9 @@ def create_app(content_dir: Path, database_url: str) -> FastAPI:
     def record_attempt(enrollment_id: int, body: AttemptIn, learner: dict = Depends(current_learner)) -> dict:
         enrollment = own_enrollment(enrollment_id, learner)
         course = courses[(enrollment["field"], enrollment["subfield"], enrollment["course"])]
-        flight_id = next((flight["id"] for flight, rung in rung_sequence(course) if rung["id"] == body.rung_id), None)
+        flight_id = next((flight["id"] for flight, lesson in lesson_sequence(course) if lesson["id"] == body.lesson_id), None)
         if flight_id is None:
-            raise HTTPException(422, f"unknown rung: {body.rung_id}")
+            raise HTTPException(422, f"unknown lesson: {body.lesson_id}")
         values = {**body.model_dump(), "enrollment_id": enrollment_id, "flight_id": flight_id, "created_at": _now()}
         with engine.begin() as conn:
             result = conn.execute(insert(attempts).values(**values))

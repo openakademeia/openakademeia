@@ -75,15 +75,15 @@ class MentorClient:
         enrollment = existing or self._call(
             "POST", "/api/v1/enrollments", json={"field": field, "subfield": subfield, "course": course}
         )
-        return self.next_rung(enrollment["id"])
+        return self.next_lesson(enrollment["id"])
 
-    def next_rung(self, enrollment_id: int) -> dict:
+    def next_lesson(self, enrollment_id: int) -> dict:
         return {"enrollment_id": enrollment_id, **self._call("GET", f"/api/v1/enrollments/{enrollment_id}/next")}
 
     def record_attempt(
         self,
         enrollment_id: int,
-        rung_id: str,
+        lesson_id: str,
         commit: str,
         confidence: int,
         outcome: str,
@@ -94,7 +94,7 @@ class MentorClient:
             "POST",
             f"/api/v1/enrollments/{enrollment_id}/attempts",
             json={
-                "rung_id": rung_id,
+                "lesson_id": lesson_id,
                 "commit": commit,
                 "confidence": confidence,
                 "outcome": outcome,

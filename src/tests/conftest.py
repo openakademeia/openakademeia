@@ -16,11 +16,11 @@ tier: pro
 flights:
   - id: 01-only
     title: Only flight
-    rungs:
-      - id: 01-only-rung
-        title: Only rung
+    lessons:
+      - id: 01-only-lesson
+        title: Only lesson
         kind: confirm
-        file: rungs/01-only-rung.md
+        file: lessons/01-only-lesson.md
 """
 
 
@@ -30,9 +30,9 @@ def content_dir(tmp_path):
     target = tmp_path / "content"
     shutil.copytree(CONTENT, target)
     course = target / "mathematics" / "analysis" / "pro-course"
-    (course / "rungs").mkdir(parents=True)
+    (course / "lessons").mkdir(parents=True)
     (course / "course.yaml").write_text(PRO_COURSE)
-    (course / "rungs" / "01-only-rung.md").write_text("# Only rung\n\nPaid text.\n")
+    (course / "lessons" / "01-only-lesson.md").write_text("# Only lesson\n\nPaid text.\n")
     return target
 
 

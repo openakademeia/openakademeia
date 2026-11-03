@@ -104,7 +104,7 @@ function renderSetup() {
     2
   );
   view.innerHTML = `<h1>Setup</h1>
-    <p>Mentor runs inside the AI you already use. Point it at this server once. After that it signs you up and fetches each rung as you reach it, and your progress stays on this server. You need <code>uv</code> on your machine.</p>
+    <p>Mentor runs inside the AI you already use. Point it at this server once. After that it signs you up and fetches each lesson as you reach it, and your progress stays on this server. You need <code>uv</code> on your machine.</p>
     <h2>Claude Code</h2>
     <pre><code>${esc(claude)}</code></pre>
     <h2>Cursor, Codex, Gemini CLI</h2>

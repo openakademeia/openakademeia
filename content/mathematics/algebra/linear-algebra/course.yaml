@@ -6,66 +6,66 @@ tier: free
 flights:
   - id: 01-arrows-and-columns
     title: Arrows and columns
-    rungs:
+    lessons:
       - id: 01-two-numbers-one-arrow
         title: Two numbers, one arrow
         kind: confirm
-        file: rungs/01-01-two-numbers-one-arrow.md
+        file: lessons/01-01-two-numbers-one-arrow.md
       - id: 02-tip-to-tail
         title: Tip to tail
         kind: confirm
-        file: rungs/01-02-tip-to-tail.md
+        file: lessons/01-02-tip-to-tail.md
       - id: 03-reaching-every-point
         title: Reaching every point
         kind: break
-        file: rungs/01-03-reaching-every-point.md
+        file: lessons/01-03-reaching-every-point.md
       - id: 04-when-arrows-agree
         title: When arrows agree
         kind: confirm
-        file: rungs/01-04-when-arrows-agree.md
+        file: lessons/01-04-when-arrows-agree.md
       - id: 05-two-views-one-thing
         title: Two views, one thing
         kind: unify
-        file: rungs/01-05-two-views-one-thing.md
+        file: lessons/01-05-two-views-one-thing.md
   - id: 02-reach-and-redundancy
     title: Reach and redundancy
-    rungs: []
+    lessons: []
   - id: 03-a-matrix-is-a-machine
     title: A matrix is a machine
-    rungs: []
+    lessons: []
   - id: 04-composition-is-multiplication
     title: Composition is multiplication
-    rungs: []
+    lessons: []
   - id: 05-the-reach-question-answered
     title: The reach question, answered
-    rungs: []
+    lessons: []
   - id: 06-what-it-reaches-and-what-it-crushes
     title: What it reaches and what it crushes
-    rungs: []
+    lessons: []
   - id: 07-undoing
     title: Undoing
-    rungs: []
+    lessons: []
   - id: 08-the-determinant-is-a-stretch-factor
     title: The determinant is a stretch factor
-    rungs: []
+    lessons: []
   - id: 09-length-angle-perpendicular
     title: Length, angle, perpendicular
-    rungs: []
+    lessons: []
   - id: 10-the-closest-answer
     title: The closest answer
-    rungs: []
+    lessons: []
   - id: 11-coordinates-are-a-choice
     title: Coordinates are a choice
-    rungs: []
+    lessons: []
   - id: 12-directions-the-machine-does-not-turn
     title: Directions the machine does not turn
-    rungs: []
+    lessons: []
   - id: 13-the-long-run
     title: The long run
-    rungs: []
+    lessons: []
   - id: 14-every-matrix-is-rotate-stretch-rotate
     title: Every matrix is rotate, stretch, rotate
-    rungs: []
+    lessons: []
   - id: 15-it-was-never-about-arrows
     title: "Epilogue: it was never about arrows"
-    rungs: []
+    lessons: []
