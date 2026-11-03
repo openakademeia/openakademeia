@@ -1,6 +1,7 @@
-"""openacademy server: catalog, learner state, progress, and the Mentor API."""
+"""openacademy server: catalog, learner state, progress, and the Plato API."""
 
 import os
+import re
 import secrets
 from datetime import date, datetime, timezone
 from pathlib import Path
@@ -33,6 +34,8 @@ DEFAULT_DATABASE_URL = f"sqlite:///{REPO_ROOT / '.openacademy.db'}"
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 CourseKey = tuple[str, str, str]
+
+SECTION_HEADING = re.compile(r"^### (?P<title>.+?) \{#(?P<id>[a-z0-9-]+)\}$")
 
 metadata = MetaData()
 
@@ -104,10 +107,39 @@ def _read_manifest(path: Path) -> dict:
     return data
 
 
-def load_catalog(content_dir: Path) -> tuple[list[dict], dict[CourseKey, Path]]:
-    """Scan field.yaml, subfield.yaml, course.yaml; return the public catalog and a (field, subfield, course) -> dir index."""
+def reading_sections(text: str) -> dict[str, str]:
+    """Split a course reading into its `### Title {#id}` sections; each runs to the next heading of level 1-3."""
+    sections: dict[str, list[str]] = {}
+    current: list[str] | None = None
+    for line in text.splitlines():
+        heading = SECTION_HEADING.match(line)
+        if heading:
+            if heading["id"] in sections:
+                raise ValueError(f"duplicate reading section {heading['id']}")
+            current = sections[heading["id"]] = [f"### {heading['title']}"]
+        elif re.match(r"^#{1,3} ", line) or line.strip() == "---":
+            current = None
+        elif current is not None:
+            current.append(line)
+    return {section_id: "\n".join(lines).strip() + "\n" for section_id, lines in sections.items()}
+
+
+def _load_reading(course_dir: Path, course: dict) -> dict | None:
+    """The course reading with its sections, after checking every lesson points at a section that exists."""
+    path = course_dir / "reading.md"
+    text = path.read_text() if path.exists() else None
+    sections = reading_sections(text) if text else {}
+    for _, lesson in lesson_sequence(course):
+        if "reading" in lesson and lesson["reading"] not in sections:
+            raise ValueError(f"lesson {lesson['id']} names missing reading section {lesson['reading']!r} in {course_dir}")
+    return {"text": text, "sections": sections} if text else None
+
+
+def load_catalog(content_dir: Path) -> tuple[list[dict], dict[CourseKey, Path], dict[CourseKey, dict]]:
+    """Scan field.yaml, subfield.yaml, course.yaml; return the public catalog plus course-dir and reading indexes."""
     fields = []
     course_dirs: dict[CourseKey, Path] = {}
+    readings: dict[CourseKey, dict] = {}
     for field_manifest in sorted(content_dir.glob("*/field.yaml")):
         field = _read_manifest(field_manifest)
         field["subfields"] = []
@@ -122,11 +154,16 @@ def load_catalog(content_dir: Path) -> tuple[list[dict], dict[CourseKey, Path]]:
                 course.setdefault("tier", "free")
                 syllabus = course_manifest.parent / "syllabus.md"
                 course["syllabus"] = syllabus.read_text() if syllabus.exists() else None
+                key = (field["id"], subfield["id"], course["id"])
+                reading = _load_reading(course_manifest.parent, course)
+                course["reading_url"] = "/api/v1/courses/{}/{}/{}/reading".format(*key) if reading else None
+                if reading:
+                    readings[key] = reading
                 subfield["courses"].append(course)
-                course_dirs[(field["id"], subfield["id"], course["id"])] = course_manifest.parent
+                course_dirs[key] = course_manifest.parent
             field["subfields"].append(subfield)
         fields.append(field)
-    return fields, course_dirs
+    return fields, course_dirs, readings
 
 
 def lesson_sequence(course: dict) -> list[tuple[dict, dict]]:
@@ -155,7 +192,7 @@ def _make_engine(database_url: str) -> Engine:
 
 
 def create_app(content_dir: Path, database_url: str) -> FastAPI:
-    catalog, course_dirs = load_catalog(content_dir)
+    catalog, course_dirs, readings = load_catalog(content_dir)
     courses = {
         (field["id"], subfield["id"], course["id"]): course
         for field in catalog
@@ -224,6 +261,15 @@ def create_app(content_dir: Path, database_url: str) -> FastAPI:
     def catalog_v1() -> list[dict]:
         return catalog
 
+    @app.get("/api/v1/courses/{field_id}/{subfield_id}/{course_id}/reading")
+    def reading(field_id: str, subfield_id: str, course_id: str) -> dict:
+        """The whole course reading as markdown; public, since it holds explanations and no answer keys."""
+        course = find_course(field_id, subfield_id, course_id)
+        found = readings.get((field_id, subfield_id, course_id))
+        if found is None:
+            raise HTTPException(404, f"no reading for {field_id}/{subfield_id}/{course_id}")
+        return {"title": course["title"], "text": found["text"]}
+
     @app.post("/api/v1/learners", status_code=201)
     def create_learner() -> dict:
         token = secrets.token_urlsafe(32)
@@ -272,7 +318,9 @@ def create_app(content_dir: Path, database_url: str) -> FastAPI:
         if upcoming is None:
             return {"done": True}
         flight, lesson = upcoming
-        course_dir = course_dirs[(enrollment["field"], enrollment["subfield"], enrollment["course"])]
+        key = (enrollment["field"], enrollment["subfield"], enrollment["course"])
+        course_dir = course_dirs[key]
+        sections = readings.get(key, {}).get("sections", {})
         return {
             "done": False,
             "flight": {"id": flight["id"], "title": flight["title"]},
@@ -281,6 +329,7 @@ def create_app(content_dir: Path, database_url: str) -> FastAPI:
                 "title": lesson["title"],
                 "kind": lesson["kind"],
                 "text": (course_dir / lesson["file"]).read_text(),
+                "reading": sections.get(lesson.get("reading")),
             },
         }
 

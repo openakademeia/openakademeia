@@ -1,9 +1,5 @@
 # Two numbers, one arrow
 
-## Concept
-
-A column of two numbers and an arrow in the plane are one object seen two ways. The column (3, 1) means "3 steps right, 1 step up". The arrow is that trip, drawn from wherever you like. A vector records a displacement, not a location.
-
 ## Commit
 
 Two parts.
@@ -22,9 +18,7 @@ Draw both arrows. They are parallel, equally long, and point the same way. Slidi
 
 ## Repair
 
-A vector is a displacement. Its column lists the horizontal step and the vertical step. The arrow can be drawn from any starting point; drawing it from the origin makes the tip's coordinates equal the column's entries, which is why the two views agree.
-
-This held in the case that just broke because subtracting start from end strips away the starting point and leaves only the trip. The same idea runs in three dimensions with three entries, and in a spreadsheet row of twelve monthly figures, which you can also shift and compare as one object.
+The second arrow starts somewhere else but makes the same trip. Subtracting start from end, (4, 3) − (1, 2), strips away the starting point and leaves (3, 1), the first arrow's column. The column never recorded where an arrow begins, so moving the start cannot change it.
 
 ## Exercises
 

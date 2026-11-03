@@ -66,12 +66,55 @@ def test_frontend_points_agents_at_the_v1_catalog_and_mcp_plugin(client):
 
     assert "/api/v1/catalog" in script
     assert "/api/fields" not in script
-    assert "openacademy-mentor" in script
+    assert "openacademy-plato" in script
     assert "download" not in script.lower()
     assert "renderSetup" in script
     assert "function renderCourse(" in script
-    assert "openacademy-mentor" not in script[script.index("function renderCourse(") : script.index("function renderNotFound")]
+    assert "openacademy-plato" not in script[script.index("function renderCourse(") : script.index("function renderNotFound")]
 
 
 def test_header_links_to_the_setup_page(client):
     assert 'href="#/setup"' in client.get("/").text
+
+
+def test_header_links_to_an_about_page_that_names_the_open_and_premium_split(client):
+    script = client.get("/app.js").text
+    about = script[script.index("function renderAbout(") : script.index("function renderCourse(")]
+
+    assert 'href="#/about"' in client.get("/").text
+    assert "open source" in about
+    assert "premium tier" in about
+
+
+READING_URL = "/api/v1/courses/mathematics/algebra/linear-algebra/reading"
+
+
+def test_catalog_links_each_course_reading_without_carrying_its_text(client):
+    fields = client.get("/api/v1/catalog").json()
+    subfields = {subfield["id"]: subfield for subfield in fields[0]["subfields"]}
+
+    assert subfields["algebra"]["courses"][0]["reading_url"] == READING_URL
+    assert subfields["analysis"]["courses"][0]["reading_url"] is None
+    assert "Vectors are displacements" not in client.get("/api/v1/catalog").text
+
+
+def test_reading_returns_the_whole_course_text_without_auth(client):
+    response = client.get(READING_URL)
+
+    assert response.status_code == 200
+    body = response.json()
+    assert body["title"] == "Linear Algebra"
+    assert "### Vectors are displacements {#vectors-are-displacements}" in body["text"]
+    assert "### Systems are combinations {#systems-are-combinations}" in body["text"]
+
+
+def test_course_without_a_reading_has_no_reading_route(client):
+    assert client.get("/api/v1/courses/mathematics/analysis/pro-course/reading").status_code == 404
+    assert client.get("/api/v1/courses/mathematics/algebra/topology/reading").status_code == 404
+
+
+def test_course_page_links_the_reader(client):
+    script = client.get("/app.js").text
+
+    assert "reading_url" in script[script.index("function renderCourse(") : script.index("function renderNotFound")]
+    assert "function renderReader(" in script

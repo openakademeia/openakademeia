@@ -1,9 +1,5 @@
 # Tip to tail
 
-## Concept
-
-Two operations and nothing else: add two vectors, and scale a vector by a number. In columns, both act entry by entry. In arrows, adding is walking one trip and then the other, and scaling stretches an arrow along its own line, with negatives reversing it.
-
 ## Commit
 
 Let v = (2, 1) and w = (1, 3).
@@ -24,9 +20,7 @@ The reason is that the entries are handled independently. Horizontal steps add a
 
 ## Repair
 
-Adding vectors is walking one then the other; the order does not matter, which is the parallelogram. Scaling is stretching along the arrow's own line; a negative scalar reverses it, and all scalings of v fill the line through the origin in v's direction.
-
-This held because columns add and scale entry by entry, and each entry is just a number. The same two operations describe a plane's velocity in wind, forces on a bridge joint, and, from chapter 3 on, they are the only two things a matrix is allowed to respect.
+Both orders end at (3, 4) because the horizontal steps, 2 and 1, total 3 in either order, and the vertical steps, 1 and 3, total 4 in either order. The parallelogram is that bookkeeping drawn as a picture. 2v and −v stay on v's line because scaling multiplies both steps by the same number, which keeps their ratio, and so the direction.
 
 ## Artifact
 
@@ -36,7 +30,7 @@ If you can build an interactive: two draggable arrows from the origin, a locked 
 
 1. With v = (2, 1) and w = (1, 3), compute 3v − w and describe where it points.
 2. Find the number c such that c·(2, 1) = (−6, −3).
-3. Using only the language of walking, explain to a friend why v + w must equal w + v, and why 2v − 2v has to be the arrow of length zero.
+3. In your own words, using only the language of walking: explain to a friend why v + w must equal w + v, and why 2v − 2v has to be the arrow of length zero.
 
 ## Twist
 

@@ -1,9 +1,5 @@
 # Two views, one thing
 
-## Concept
-
-Lessons 3 and 4 asked "how far along each arrow to reach the target". School algebra asked "solve two equations in two unknowns". These are one question. And the word vector was never about arrows: it means anything you can add and scale.
-
 ## Commit
 
 Take the reach question from lesson 3: a·(2, 1) + b·(1, 1) = (x, y).
@@ -22,9 +18,7 @@ Lesson 4 in this language: the system 2a + 4b = 0, a + 2b = 5 has no solution be
 
 ## Repair
 
-A linear combination of columns and a system of linear equations are one idea in two notations. The columns are the arrows, the unknowns are how far to walk along each, and the right-hand side is where you want to land.
-
-A vector is anything you can add and scale by numbers. Columns of two numbers were the first example; columns of n numbers come next; recipes (double one, add two together), audio samples, and, at the end of this course, functions all behave the same way, and everything proved about arrows will apply to them.
+The equations 2a + b = x and a + b = y are the walk read one coordinate at a time: the first totals the sideways steps, the second the upward steps. Solving 2a + b = 0 and a + b = 5 in school was choosing how far to walk along (2, 1) and (1, 1) to land on (0, 5), which is lesson 3's answer, a = −5 and b = 10.
 
 ## Exercises
 

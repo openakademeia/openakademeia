@@ -22,29 +22,6 @@ function courseCount(field) {
   return field.subfields.reduce((n, s) => n + s.courses.length, 0);
 }
 
-/* The mark: a disc of flowing stripes, drawn rather than shipped as a file so it takes the surrounding colour. */
-function drawMark(svg) {
-  const bands = 8;
-  let d = "";
-  for (let k = 0; k < bands; k++) {
-    const y0 = -50 + ((k + 0.5) * 100) / bands;
-    const top = [];
-    const bottom = [];
-    for (let x = -52; x <= 52; x += 4) {
-      const swell = Math.exp(-(((x - 10) / 26) ** 2));
-      const lift = 9 * swell * Math.sin(((k + 1) / (bands + 1)) * Math.PI) * (k < bands / 2 ? -1 : 1) * 0.6;
-      const wave = 3.2 * Math.sin((x + 52) / 16 + k * 0.7) * swell;
-      const y = y0 + lift + wave;
-      const half = 3.1 + 1.6 * swell;
-      top.push(`${x} ${(y - half).toFixed(1)}`);
-      bottom.unshift(`${x} ${(y + half).toFixed(1)}`);
-    }
-    d += `M${top.join("L")}L${bottom.join("L")}Z`;
-  }
-  const id = `disc${Math.random().toString(36).slice(2, 8)}`;
-  svg.innerHTML = `<defs><clipPath id="${id}"><circle r="50"/></clipPath></defs><path clip-path="url(#${id})" fill="currentColor" d="${d}"/>`;
-}
-
 /* Media for the tunnel and the page: openly licensed placeholders until courses have footage of their own. */
 const M = "/media/";
 const TUNNEL = [
@@ -213,10 +190,10 @@ function reveal() {
   return () => io.disconnect();
 }
 
-const PLUGIN_SOURCE = "git+https://github.com/slow42/openacademy#subdirectory=plugins/mentor";
+const PLUGIN_SOURCE = "git+https://github.com/slow42/openacademy#subdirectory=plugins/plato";
 
 function claudeCommand() {
-  return `claude mcp add openacademy -e OPENACADEMY_URL=${location.origin} -- uvx --from "${PLUGIN_SOURCE}" openacademy-mentor`;
+  return `claude mcp add openacademy -e OPENACADEMY_URL=${location.origin} -- uvx --from "${PLUGIN_SOURCE}" openacademy-plato`;
 }
 
 async function renderHome() {
@@ -243,14 +220,14 @@ async function renderHome() {
       <div class="panel commit">
         <div class="commit-text">
           <h2 id="commit-title" class="h2 rise">Commit before you see the answer</h2>
-          <p class="lead rise" style="--i:1">Every lesson asks for your answer and how sure you are before it shows you the truth. When a belief breaks, Mentor repairs it with you, then hands you exercises and a twist.</p>
+          <p class="lead rise" style="--i:1">Every lesson asks for your answer and how sure you are before it shows you the truth. When a belief breaks, Plato repairs it with you, then hands you exercises and a twist.</p>
           <p class="note rise" style="--i:2">From the first lesson of Linear Algebra, as it plays out in a learner's own AI.</p>
         </div>
         <div class="chat rise" style="--i:2" data-ui>
-          <div class="chat-head"><span>Mentor</span><span>Two numbers, one arrow</span></div>
-          <p class="msg"><span class="who">Mentor</span>An arrow starts at the origin and ends at (3, 1). Write it as a column. A second arrow runs from (1, 2) to (4, 3). Same vector, or a different one? Give both answers and a confidence from 1 to 4.</p>
+          <div class="chat-head"><span>Plato</span><span>Two numbers, one arrow</span></div>
+          <p class="msg"><span class="who">Plato</span>An arrow starts at the origin and ends at (3, 1). Write it as a column. A second arrow runs from (1, 2) to (4, 3). Same vector, or a different one? Give both answers and a confidence from 1 to 4.</p>
           <p class="msg you"><span class="who">You</span>(3, 1). Different, it starts somewhere else. Confidence 3.</p>
-          <p class="msg truth"><span class="who">Mentor</span>The first is right. The second is the same vector: from (1, 2) to (4, 3) is 3 steps right and 1 up, so its column is (3, 1) too. A vector is the trip, not where the trip started.</p>
+          <p class="msg truth"><span class="who">Plato</span>The first is right. The second is the same vector: from (1, 2) to (4, 3) is 3 steps right and 1 up, so its column is (3, 1) too. A vector is the trip, not where the trip started.</p>
         </div>
       </div>
     </section>
@@ -263,7 +240,7 @@ async function renderHome() {
         </figure>
         <div class="teacher-text">
           <h2 id="teacher-title" class="h2 rise">Your AI is the teacher</h2>
-          <p class="lead rise" style="--i:1">Mentor plugs into Claude Code, Cursor, Codex and Gemini CLI. It signs you up, fetches each lesson as you reach it, and this server keeps your place.</p>
+          <p class="lead rise" style="--i:1">Plato plugs into Claude Code, Cursor, Codex and Gemini CLI. It signs you up, fetches each lesson as you reach it, and this server keeps your place.</p>
           <pre class="rise" style="--i:2"><code>${esc(claudeCommand())}</code></pre>
           <a class="link rise" style="--i:3" href="#/setup">Every way to connect</a>
         </div>
@@ -316,9 +293,9 @@ function crumbs(parts) {
   return `<p class="crumbs">${items.join(`<span aria-hidden="true">/</span>`)}</p>`;
 }
 
-function pageHead(title, crumbParts, lead) {
+function pageHead(title, crumbParts, lead, action) {
   return `<header class="page-head">
-    ${crumbParts ? crumbs(crumbParts) : ""}
+    ${crumbParts || action ? `<div class="page-top">${crumbParts ? crumbs(crumbParts) : "<span></span>"}${action || ""}</div>` : ""}
     <h1>${title}</h1>
     ${lead ? `<p class="lead">${esc(lead)}</p>` : ""}
   </header>`;
@@ -375,12 +352,16 @@ function markdown(text) {
   };
   for (const raw of text.split("\n")) {
     const line = raw.trimEnd();
-    const heading = /^(#{1,6}) (.*)$/.exec(line);
+    const heading = /^(#{1,6}) (.*?)(?: \{#([a-z0-9-]+)\})?$/.exec(line);
     const bullet = /^- (.*)$/.exec(line);
     const number = /^\d+\. (.*)$/.exec(line);
     if (heading) {
       closeList();
-      out.push(`<h${heading[1].length}>${inline(heading[2])}</h${heading[1].length}>`);
+      const id = heading[3] ? ` id="${heading[3]}"` : "";
+      out.push(`<h${heading[1].length}${id}>${inline(heading[2])}</h${heading[1].length}>`);
+    } else if (line === "---") {
+      closeList();
+      out.push("<hr>");
     } else if (bullet || number) {
       const kind = bullet ? "ul" : "ol";
       if (list !== kind) {
@@ -403,12 +384,12 @@ function markdown(text) {
 function renderSetup() {
   const origin = location.origin;
   const json = JSON.stringify(
-    { mcpServers: { openacademy: { command: "uvx", args: ["--from", PLUGIN_SOURCE, "openacademy-mentor"], env: { OPENACADEMY_URL: origin } } } },
+    { mcpServers: { openacademy: { command: "uvx", args: ["--from", PLUGIN_SOURCE, "openacademy-plato"], env: { OPENACADEMY_URL: origin } } } },
     null,
     2
   );
   view.innerHTML = `<div class="page">
-    ${pageHead("Connect your agent", null, "Mentor runs inside the AI you already use. Point it at this server once; after that it signs you up and fetches each lesson as you reach it.")}
+    ${pageHead("Connect your agent", null, "Plato runs inside the AI you already use. Point it at this server once; after that it signs you up and fetches each lesson as you reach it.")}
     <div class="setup">
       <section>
         <h2>Claude Code</h2>
@@ -429,12 +410,39 @@ function renderSetup() {
   </div>`;
 }
 
+function renderAbout() {
+  view.innerHTML = `<div class="page">
+    ${pageHead("About openacademy", null, "Courses you take with the AI you already use. The courses and the agent that teaches them are open source.")}
+    <div class="setup">
+      <section>
+        <h2>How it works</h2>
+        <p>Every lesson asks you to predict something before it explains anything, and to say how sure you are. When the prediction fails, the idea arrives as the fix for it. Plato, a plugin for your AI, runs that loop: it fetches the lesson, holds the answer back until you have committed, and questions your reasoning instead of grading the final number.</p>
+      </section>
+      <section>
+        <h2>What is open source</h2>
+        <p>The course content is open source: every lesson, syllabus and course book. So is the Plato plugin. You can read them, run them against your own server, fix a lesson you think is wrong, or write a new course.</p>
+        <p><a class="link" href="https://github.com/slow42/openacademy">Source on GitHub</a></p>
+      </section>
+      <section>
+        <h2>What the web app adds</h2>
+        <p>This site serves the catalog, keeps your place in each course, and is where the paid features will live. A premium tier is coming with progress management across courses, visualizations of what you have learned and where you got stuck, and courses built from material you upload yourself. The open content and the plugin stay free.</p>
+      </section>
+      <section>
+        <h2>Why Plato, why a tree</h2>
+        <p>Plato wrote his philosophy as dialogues: Socrates asks, the student answers, and the next question takes the answer apart. That is the teaching method here. Plato's Academy stood in a grove of olive trees outside Athens, which is where the tree in the logo comes from.</p>
+        <p><a class="link" href="#/setup">Connect your agent</a></p>
+      </section>
+    </div>
+  </div>`;
+}
+
 function renderCourse(field, subfield, course) {
   const path = `${field.id}/${subfield.id}/${course.id}`;
   const lessons = (course.flights || []).reduce((n, f) => n + f.lessons.length, 0);
   const tier = course.tier && course.tier !== "free" ? `${esc(course.tier)} plan` : "Free";
+  const reader = course.reading_url ? `<a class="button small plain" href="#/${path}/read">Read the book</a>` : "";
   view.innerHTML = `<div class="page">
-    ${pageHead(esc(course.title), [`<a href="#/${field.id}">${esc(field.title)}</a>`, `<a href="#/${field.id}/${subfield.id}">${esc(subfield.title)}</a>`, esc(course.title)], course.summary)}
+    ${pageHead(esc(course.title), [`<a href="#/${field.id}">${esc(field.title)}</a>`, `<a href="#/${field.id}/${subfield.id}">${esc(subfield.title)}</a>`, esc(course.title)], course.summary, reader)}
     <div class="course">
       ${course.syllabus ? `<article class="prose">${markdown(course.syllabus)}</article>` : `<p class="empty">The syllabus is still being written.</p>`}
       <aside class="course-side">
@@ -452,14 +460,34 @@ function renderCourse(field, subfield, course) {
   </div>`;
 }
 
+async function renderReader(field, subfield, course, sectionId) {
+  const path = `${field.id}/${subfield.id}/${course.id}`;
+  const { text } = await fetch(course.reading_url).then((r) => r.json());
+  const body = text.replace(/^# .*\n/, "");
+  const contents = [...body.matchAll(/^(##|###) (.*?)(?: \{#([a-z0-9-]+)\})?$/gm)]
+    .map(([, level, title, id]) =>
+      level === "##" ? `<li class="toc-chapter">${inline(title)}</li>` : id ? `<li><a href="#/${path}/read/${id}">${inline(title)}</a></li>` : ""
+    )
+    .join("");
+  view.innerHTML = `<div class="page">
+    ${pageHead(esc(course.title), [`<a href="#/${field.id}">${esc(field.title)}</a>`, `<a href="#/${field.id}/${subfield.id}">${esc(subfield.title)}</a>`, `<a href="#/${path}">${esc(course.title)}</a>`, "Book"], null)}
+    <div class="course">
+      <article class="prose reader">${markdown(body)}</article>
+      <aside class="course-side"><nav class="toc" aria-label="Contents"><p>Contents</p><ol>${contents}</ol></nav></aside>
+    </div>
+  </div>`;
+  if (sectionId) setTimeout(() => document.getElementById(sectionId)?.scrollIntoView({ block: "start" }), 0);
+}
+
 function renderNotFound() {
   view.innerHTML = `<div class="page">${pageHead("Not found", null, null)}<p><a class="link" href="#/courses">Back to courses</a></p></div>`;
 }
 
 async function route() {
-  const [first, subfieldId, courseId] = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);
+  const [first, subfieldId, courseId, page, sectionId] = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);
   if (!first) return renderHome();
   if (first === "setup") return renderSetup();
+  if (first === "about") return renderAbout();
   const fields = await loadCatalog();
   if (first === "courses") return renderFields(fields);
   const field = fields.find((f) => f.id === first);
@@ -470,6 +498,8 @@ async function route() {
   if (!courseId) return renderCourses(field, subfield);
   const course = subfield.courses.find((c) => c.id === courseId);
   if (!course) return renderNotFound();
+  if (page === "read" && course.reading_url) return renderReader(field, subfield, course, sectionId);
+  if (page) return renderNotFound();
   renderCourse(field, subfield, course);
 }
 
@@ -477,7 +507,8 @@ function markNav() {
   const section = location.hash.replace(/^#\/?/, "").split("/")[0];
   document.querySelectorAll(".bar nav a").forEach((a) => {
     const target = a.getAttribute("href").replace(/^#\/?/, "");
-    const current = target === "setup" ? section === "setup" : section && section !== "setup";
+    const pages = ["setup", "about"];
+    const current = pages.includes(target) ? section === target : section && !pages.includes(section);
     if (current) a.setAttribute("aria-current", "page");
     else a.removeAttribute("aria-current");
   });
@@ -504,7 +535,6 @@ async function renderCredits() {
   }
 }
 
-document.querySelectorAll("svg.mark").forEach(drawMark);
 window.addEventListener("hashchange", render);
 render();
 renderCredits();

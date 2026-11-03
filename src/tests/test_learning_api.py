@@ -54,6 +54,14 @@ def test_next_returns_the_first_lesson_with_its_text(client, auth, enrollment_id
     assert body["lesson"]["text"].startswith("# Two numbers, one arrow")
 
 
+def test_next_carries_only_the_lessons_reading_section(client, auth, enrollment_id):
+    reading = client.get(f"/api/v1/enrollments/{enrollment_id}/next", headers=auth).json()["lesson"]["reading"]
+
+    assert reading.startswith("### Vectors are displacements\n")
+    assert "{#" not in reading
+    assert "Adding and scaling" not in reading
+
+
 def test_recording_an_attempt_advances_to_the_next_lesson(client, auth, enrollment_id):
     created = client.post(f"/api/v1/enrollments/{enrollment_id}/attempts", json=ATTEMPT, headers=auth)
 
