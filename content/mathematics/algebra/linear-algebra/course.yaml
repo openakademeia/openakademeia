@@ -11,22 +11,27 @@ flights:
         title: Two numbers, one arrow
         kind: confirm
         file: lessons/01-01-two-numbers-one-arrow.md
+        reading: vectors-are-displacements
       - id: 02-tip-to-tail
         title: Tip to tail
         kind: confirm
         file: lessons/01-02-tip-to-tail.md
+        reading: adding-and-scaling
       - id: 03-reaching-every-point
         title: Reaching every point
         kind: break
         file: lessons/01-03-reaching-every-point.md
+        reading: linear-combinations-and-reach
       - id: 04-when-arrows-agree
         title: When arrows agree
         kind: confirm
         file: lessons/01-04-when-arrows-agree.md
+        reading: redundant-arrows
       - id: 05-two-views-one-thing
         title: Two views, one thing
         kind: unify
         file: lessons/01-05-two-views-one-thing.md
+        reading: systems-are-combinations
   - id: 02-reach-and-redundancy
     title: Reach and redundancy
     lessons: []

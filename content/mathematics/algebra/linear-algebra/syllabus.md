@@ -4,7 +4,7 @@ Fourteen chapters and an epilogue, taught geometry first: arrows and the machine
 
 School algebra and the coordinate plane. You should be able to solve 2x + 3 = 7, multiply out brackets, handle fractions and negatives, plot a point from two numbers, and read the numbers back off a plot. No other prior knowledge is required. Pythagoras comes up in chapter 9, and the lesson that needs it reminds you how it goes.
 
-The first two lessons double as the check. Beyond that, the one thing the course asks of you is to commit to an answer before you see the right one. Mentor holds you to that.
+The first two lessons double as the check. Beyond that, the one thing the course asks of you is to commit to an answer before you see the right one. Plato holds you to that.
 
 ## Chapters
 

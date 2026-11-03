@@ -1,9 +1,5 @@
 # Reaching every point
 
-## Concept
-
-A linear combination of v and w is any a·v + b·w, with a and b any numbers. The reach of two arrows is the set of points their combinations can land on. The coordinate axes are perpendicular, and that convenience hides what actually makes two directions enough.
-
 ## Commit
 
 Let v = (2, 1) and w = (1, 1). Neither is horizontal or vertical, and they are not perpendicular to each other; they lean toward the same side.
@@ -22,9 +18,7 @@ The picture: v and w lay down a skewed grid instead of a square one. Walk any di
 
 ## Repair
 
-Two arrows reach the whole plane exactly when they do not lie on one line. Two genuinely different directions are enough; perpendicular is a special, tidy case of "different".
-
-This held in the case that just broke because a and b were allowed to be negative and fractional, so walking backward along v and far along w got to a point neither arrow leaned toward. The same idea is why isometric game maps and crystal lattices, drawn on slanted grids, address every location, and in chapter 2 it becomes the question of how many directions three arrows in space really supply.
+(0, 5) looked out of reach because both arrows lean right and up. But a = −5 walks backward along v and b = 10 walks far along w: the sideways steps cancel (−10 + 10 = 0) and the upward steps leave 5. Leaning the same way never mattered, and neither did being perpendicular. Lying on one line would have.
 
 ## Artifact
 

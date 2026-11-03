@@ -4,7 +4,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app import create_app
-from mentor.client import MentorClient
+from plato.client import PlatoClient
 
 REPO = Path(__file__).resolve().parents[3]
 
@@ -22,5 +22,5 @@ def token_path(tmp_path):
 
 
 @pytest.fixture
-def mentor(http, token_path):
-    return MentorClient(http, token_path)
+def plato(http, token_path):
+    return PlatoClient(http, token_path)

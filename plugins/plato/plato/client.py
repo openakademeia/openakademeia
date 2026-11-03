@@ -1,4 +1,4 @@
-"""HTTP client for the openacademy Mentor API; owns the learner token."""
+"""HTTP client for the openacademy Plato API; owns the learner token."""
 
 import os
 from pathlib import Path
@@ -9,7 +9,7 @@ DEFAULT_URL = "http://localhost:8080"
 DEFAULT_TOKEN_DIR = Path.home() / ".openacademy"
 
 
-class MentorError(Exception):
+class PlatoError(Exception):
     """The server refused a request; the message is the server's detail."""
 
 
@@ -18,7 +18,7 @@ def default_token_path(url: str) -> Path:
     return DEFAULT_TOKEN_DIR / f"{host}.token"
 
 
-class MentorClient:
+class PlatoClient:
     def __init__(self, http: httpx.Client, token_path: Path):
         self.http = http
         self.token_path = token_path
@@ -44,7 +44,7 @@ class MentorClient:
                 detail = response.json().get("detail", response.text)
             except ValueError:
                 detail = response.text
-            raise MentorError(f"{response.status_code}: {detail}")
+            raise PlatoError(f"{response.status_code}: {detail}")
         return response.json()
 
     def list_courses(self) -> list[dict]:
@@ -107,6 +107,6 @@ class MentorClient:
         return self._call("GET", "/api/v1/me")
 
 
-def connect(url: str | None = None) -> MentorClient:
+def connect(url: str | None = None) -> PlatoClient:
     base = url or os.environ.get("OPENACADEMY_URL", DEFAULT_URL)
-    return MentorClient(httpx.Client(base_url=base, timeout=30), default_token_path(base))
+    return PlatoClient(httpx.Client(base_url=base, timeout=30), default_token_path(base))

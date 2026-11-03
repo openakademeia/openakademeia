@@ -1,9 +1,5 @@
 # When arrows agree
 
-## Concept
-
-The condition from the last lesson cuts both ways. Two arrows on the same line reach only that line. There is no middle case: two arrows reach the whole plane, or a line, or, if both are zero, nothing but the origin.
-
 ## Commit
 
 Let v = (2, 1) and u = (4, 2).
@@ -26,9 +22,7 @@ The picture: both arrows lie on one line, and tip-to-tail walking along a line n
 
 ## Repair
 
-An arrow on the same line as another adds nothing to the reach; it is redundant. For two arrows the reach is the whole plane, or a line, or the origin alone. Nothing in between.
-
-This held because u was a multiple of v, so any walk using both could be rewritten as a walk using v alone. The same all-or-collapse pattern returns as "determinant zero" in chapter 8 and as rank in chapter 6; and two sensors that measure the same quantity give one number's worth of information, however many readings they report.
+u is 2v, so every walk that uses both is a walk along v alone: a·v + b·u = (a + 2b)·v. (6, 3) is 3v, on v's line, so it is reachable in many ways. (0, 5) is off the line, and no amount of u can help, because u offers no direction that v lacks.
 
 ## Artifact
 
