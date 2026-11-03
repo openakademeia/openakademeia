@@ -1,6 +1,6 @@
 id: linear-algebra
 title: Linear Algebra
-summary: "From arrows to the singular value decomposition, geometry first. Each chapter is built around a belief you probably hold and a rung that breaks it. No calculus, no proof experience, no programming assumed."
+summary: "From arrows to the singular value decomposition, geometry first. Each chapter is built around something you probably believe that turns out to be wrong. School algebra and the coordinate plane are all you need."
 status: in progress
 tier: free
 flights:

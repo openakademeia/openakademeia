@@ -36,7 +36,7 @@ def test_catalog_carries_each_course_syllabus_when_one_exists(client):
     fields = client.get("/api/v1/catalog").json()
     subfields = {subfield["id"]: subfield for subfield in fields[0]["subfields"]}
 
-    assert subfields["algebra"]["courses"][0]["syllabus"].startswith("# Linear Algebra")
+    assert "## Chapters" in subfields["algebra"]["courses"][0]["syllabus"]
     assert subfields["analysis"]["courses"][0]["syllabus"] is None
 
 
