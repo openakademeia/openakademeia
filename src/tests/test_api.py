@@ -27,8 +27,8 @@ def test_catalog_lists_mathematics_field_with_subfields_and_courses(client):
     assert course["id"] == "linear-algebra"
     assert len(course["flights"]) == 15
     assert course["flights"][0]["id"] == "01-arrows-and-columns"
-    assert [rung["kind"] for rung in course["flights"][0]["rungs"]] == ["confirm", "confirm", "break", "confirm", "unify"]
-    assert course["flights"][1]["rungs"] == []
+    assert [lesson["kind"] for lesson in course["flights"][0]["lessons"]] == ["confirm", "confirm", "break", "confirm", "unify"]
+    assert course["flights"][1]["lessons"] == []
     assert [course["id"] for course in subfields["analysis"]["courses"]] == ["pro-course"]
 
 
@@ -40,7 +40,7 @@ def test_catalog_carries_each_course_syllabus_when_one_exists(client):
     assert subfields["analysis"]["courses"][0]["syllabus"] is None
 
 
-def test_catalog_never_includes_rung_text(client):
+def test_catalog_never_includes_lesson_text(client):
     body = client.get("/api/v1/catalog").text
 
     assert "Lorem" not in body

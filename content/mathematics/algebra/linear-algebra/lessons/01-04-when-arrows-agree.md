@@ -2,7 +2,7 @@
 
 ## Concept
 
-The condition from the last rung cuts both ways. Two arrows on the same line reach only that line. There is no middle case: two arrows reach the whole plane, or a line, or, if both are zero, nothing but the origin.
+The condition from the last lesson cuts both ways. Two arrows on the same line reach only that line. There is no middle case: two arrows reach the whole plane, or a line, or, if both are zero, nothing but the origin.
 
 ## Commit
 
@@ -32,7 +32,7 @@ This held because u was a multiple of v, so any walk using both could be rewritt
 
 ## Artifact
 
-If you can build an interactive: the same slider setup as the previous rung, but with u = 2v, so the learner watches the reachable set stay pinned to one line while the sliders move.
+If you can build an interactive: the same slider setup as the previous lesson, but with u = 2v, so the learner watches the reachable set stay pinned to one line while the sliders move.
 
 ## Exercises
 

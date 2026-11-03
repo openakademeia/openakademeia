@@ -31,27 +31,27 @@ def build_server(client: MentorClient | None = None) -> MCPServer:
     def list_courses() -> list[dict]:
         return mentor().list_courses()
 
-    @server.tool(description="Enroll the learner in a course, or resume it, and return the next rung with its full text.")
+    @server.tool(description="Enroll the learner in a course, or resume it, and return the next lesson with its full text.")
     def start_course(field: str, subfield: str, course: str) -> dict:
         return mentor().start_course(field, subfield, course)
 
-    @server.tool(description="Return the next unfinished rung of an enrollment with its full text, or done: true.")
-    def next_rung(enrollment_id: int) -> dict:
-        return mentor().next_rung(enrollment_id)
+    @server.tool(description="Return the next unfinished lesson of an enrollment with its full text, or done: true.")
+    def next_lesson(enrollment_id: int) -> dict:
+        return mentor().next_lesson(enrollment_id)
 
     @server.tool(
-        description="Record a finished rung: the learner's commit, confidence 1-4, outcome, whether the repair was given outright, and any artifact result line."
+        description="Record a finished lesson: the learner's commit, confidence 1-4, outcome, whether the repair was given outright, and any artifact result line."
     )
     def record_attempt(
         enrollment_id: int,
-        rung_id: str,
+        lesson_id: str,
         commit: str,
         confidence: int,
         outcome: Literal["correct", "wrong"],
         assisted: bool = False,
         artifact_result: str | None = None,
     ) -> dict:
-        return mentor().record_attempt(enrollment_id, rung_id, commit, confidence, outcome, assisted, artifact_result)
+        return mentor().record_attempt(enrollment_id, lesson_id, commit, confidence, outcome, assisted, artifact_result)
 
     @server.tool(description="The learner's plan, weekly streak, and progress in every enrollment.")
     def progress() -> dict:

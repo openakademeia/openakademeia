@@ -1,6 +1,6 @@
 # Linear Algebra: authoring notes
 
-Not rendered; `syllabus.md` is what learners see. Status: syllabus approved 2026-11-02 (proposed 2026-10-07); chapter 1 written, chapters 2 to 14 and the epilogue are planned flights with no rungs.
+Not rendered; `syllabus.md` is what learners see. Status: syllabus approved 2026-11-02 (proposed 2026-10-07); chapter 1 written, chapters 2 to 14 and the epilogue are planned flights with no lessons.
 
 ## Sources
 
@@ -9,7 +9,7 @@ Not rendered; `syllabus.md` is what learners see. Status: syllabus approved 2026
 
 ## Rules
 
-- Each chapter is one flight of 3 to 5 rungs. Rung mix per `plugins/mentor/SKILL.md`: confirm, break, unify kinds; about 1 in 4 rungs a trap; at least one human-only exercise per rung.
+- Each chapter is one flight of 3 to 5 lessons. Lesson mix per `plugins/mentor/SKILL.md`: confirm, break, unify kinds; about 1 in 4 lessons a trap; at least one human-only exercise per lesson.
 - Interactive artifacts matter most in chapters 3, 4, 8, 12, and 14, where the claim is about a picture.
 
 ## Decisions
@@ -17,4 +17,4 @@ Not rendered; `syllabus.md` is what learners see. Status: syllabus approved 2026
 1. All 14 chapters and the epilogue kept, in this order. Merging 9 with 10, or 13 into 12, stays an option if the middle drags.
 2. Geometry-first order, not the equations-first order both books use.
 
-Next: run chapter 1 through the rung loop with a real learner, fix what drags, then write chapter 2.
+Next: run chapter 1 through the lesson loop with a real learner, fix what drags, then write chapter 2.

@@ -3,7 +3,7 @@ from datetime import date
 from app import streak_weeks
 
 ENROLL = {"field": "mathematics", "subfield": "algebra", "course": "linear-algebra"}
-ATTEMPT = {"rung_id": "01-two-numbers-one-arrow", "commit": "it lands at (2, 1)", "confidence": 3, "outcome": "correct", "assisted": False}
+ATTEMPT = {"lesson_id": "01-two-numbers-one-arrow", "commit": "it lands at (2, 1)", "confidence": 3, "outcome": "correct", "assisted": False}
 
 
 def test_catalog_v1_exposes_course_tier(client):
@@ -42,40 +42,40 @@ def test_enrolling_in_an_unknown_course_is_404(client, auth):
     assert response.json() == {"detail": "course not found: mathematics/algebra/topology"}
 
 
-def test_next_returns_the_first_rung_with_its_text(client, auth, enrollment_id):
+def test_next_returns_the_first_lesson_with_its_text(client, auth, enrollment_id):
     response = client.get(f"/api/v1/enrollments/{enrollment_id}/next", headers=auth)
 
     assert response.status_code == 200
     body = response.json()
     assert body["done"] is False
     assert body["flight"]["id"] == "01-arrows-and-columns"
-    assert body["rung"]["id"] == "01-two-numbers-one-arrow"
-    assert body["rung"]["kind"] == "confirm"
-    assert body["rung"]["text"].startswith("# Two numbers, one arrow")
+    assert body["lesson"]["id"] == "01-two-numbers-one-arrow"
+    assert body["lesson"]["kind"] == "confirm"
+    assert body["lesson"]["text"].startswith("# Two numbers, one arrow")
 
 
-def test_recording_an_attempt_advances_to_the_next_rung(client, auth, enrollment_id):
+def test_recording_an_attempt_advances_to_the_next_lesson(client, auth, enrollment_id):
     created = client.post(f"/api/v1/enrollments/{enrollment_id}/attempts", json=ATTEMPT, headers=auth)
 
     assert created.status_code == 201
-    assert created.json()["rung_id"] == "01-two-numbers-one-arrow"
+    assert created.json()["lesson_id"] == "01-two-numbers-one-arrow"
     following = client.get(f"/api/v1/enrollments/{enrollment_id}/next", headers=auth).json()
-    assert following["rung"]["id"] == "02-tip-to-tail"
+    assert following["lesson"]["id"] == "02-tip-to-tail"
 
 
-def test_completing_every_rung_marks_the_enrollment_done(client, auth, enrollment_id):
-    for rung_id in ["01-two-numbers-one-arrow", "02-tip-to-tail", "03-reaching-every-point", "04-when-arrows-agree", "05-two-views-one-thing"]:
-        client.post(f"/api/v1/enrollments/{enrollment_id}/attempts", json={**ATTEMPT, "rung_id": rung_id}, headers=auth)
+def test_completing_every_lesson_marks_the_enrollment_done(client, auth, enrollment_id):
+    for lesson_id in ["01-two-numbers-one-arrow", "02-tip-to-tail", "03-reaching-every-point", "04-when-arrows-agree", "05-two-views-one-thing"]:
+        client.post(f"/api/v1/enrollments/{enrollment_id}/attempts", json={**ATTEMPT, "lesson_id": lesson_id}, headers=auth)
 
     assert client.get(f"/api/v1/enrollments/{enrollment_id}/next", headers=auth).json() == {"done": True}
     listed = client.get("/api/v1/enrollments", headers=auth).json()
     assert [(e["course"], e["completed"], e["total"]) for e in listed] == [("linear-algebra", 5, 5)]
 
 
-def test_attempt_rejects_unknown_rung_and_bad_confidence(client, auth, enrollment_id):
+def test_attempt_rejects_unknown_lesson_and_bad_confidence(client, auth, enrollment_id):
     url = f"/api/v1/enrollments/{enrollment_id}/attempts"
 
-    assert client.post(url, json={**ATTEMPT, "rung_id": "nope"}, headers=auth).status_code == 422
+    assert client.post(url, json={**ATTEMPT, "lesson_id": "nope"}, headers=auth).status_code == 422
     assert client.post(url, json={**ATTEMPT, "confidence": 5}, headers=auth).status_code == 422
 
 
@@ -85,7 +85,7 @@ def test_enrollment_of_another_learner_is_invisible(client, auth, enrollment_id)
     assert client.get(f"/api/v1/enrollments/{enrollment_id}/next", headers=other).status_code == 404
 
 
-def test_free_learner_cannot_fetch_a_pro_rung(client, auth):
+def test_free_learner_cannot_fetch_a_pro_lesson(client, auth):
     enrolled = client.post("/api/v1/enrollments", json={**ENROLL, "subfield": "analysis", "course": "pro-course"}, headers=auth)
     assert enrolled.status_code == 201
 
@@ -104,7 +104,7 @@ def test_me_reports_streak_and_next_action(client, auth, enrollment_id):
 
     after = client.get("/api/v1/me", headers=auth).json()
     assert after["streak_weeks"] == 1
-    assert after["enrollments"][0]["next_rung"] == "02-tip-to-tail"
+    assert after["enrollments"][0]["next_lesson"] == "02-tip-to-tail"
 
 
 def test_streak_counts_consecutive_iso_weeks_and_resets_on_a_gap():

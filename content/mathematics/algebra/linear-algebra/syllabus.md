@@ -1,10 +1,10 @@
-Fourteen chapters and an epilogue, taught geometry first: arrows and the machines that move them come before systems of equations, the way 3Blue1Brown does it and the opposite of most textbooks. Each chapter is three to five rungs, short enough to finish in one sitting, and each is built around something you probably believe about arrows or matrices that turns out to be wrong. The concept is what fixes it.
+Fourteen chapters and an epilogue, taught geometry first: arrows and the machines that move them come before systems of equations, the way 3Blue1Brown does it and the opposite of most textbooks. Each chapter is three to five lessons, short enough to finish in one sitting, and each is built around something you probably believe about arrows or matrices that turns out to be wrong. The concept is what fixes it.
 
 ## What you need
 
-School algebra and the coordinate plane. You should be able to solve 2x + 3 = 7, multiply out brackets, handle fractions and negatives, plot a point from two numbers, and read the numbers back off a plot. No other prior knowledge is required. Pythagoras comes up in chapter 9, and the rung that needs it reminds you how it goes.
+School algebra and the coordinate plane. You should be able to solve 2x + 3 = 7, multiply out brackets, handle fractions and negatives, plot a point from two numbers, and read the numbers back off a plot. No other prior knowledge is required. Pythagoras comes up in chapter 9, and the lesson that needs it reminds you how it goes.
 
-The first two rungs double as the check. Beyond that, the one thing the course asks of you is to commit to an answer before you see the right one. Mentor holds you to that.
+The first two lessons double as the check. Beyond that, the one thing the course asks of you is to commit to an answer before you see the right one. Mentor holds you to that.
 
 ## Chapters
 
