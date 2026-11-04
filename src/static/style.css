@@ -14,25 +14,34 @@
 }
 
 :root {
-  --ground: #e3e2de;
-  --dot: rgba(17, 17, 16, 0.11);
-  --paper: #f4f4f2;
-  --ink: #111110;
-  --ink-soft: #55534d;
-  --night: #1c1b19;
-  --night-2: #262522;
-  --on-night: #f1f1ef;
-  --on-night-soft: #a9a59b;
-  --accent: #ee4b22;
-  --accent-button: #cc3c0e;
-  --accent-press: #b5340a;
+  /* Palette: docs/palette.md. The five brand colours, then roles built from them. */
+  --olive-leaf: #606c38;
+  --black-forest: #283618;
+  --cornsilk: #fefae0;
+  --sunlit-clay: #dda15e;
+  --copperwood: #bc6c25;
+
+  --ground: var(--cornsilk);
+  --dot: rgba(40, 54, 24, 0.13);
+  --paper: #f9edcc;
+  --paper-deep: #f6e4c0;
+  --ink: var(--black-forest);
+  --ink-soft: var(--olive-leaf);
+  --night: var(--black-forest);
+  --night-2: #364420;
+  --on-night: var(--cornsilk);
+  --on-night-soft: #bebfa4;
+  --accent: var(--copperwood);
+  --accent-soft: var(--sunlit-clay);
+  --accent-button: #9e6122;
+  --accent-press: #905c21;
 
   --serif: "Newsreader", "Iowan Old Style", "Palatino Linotype", Georgia, serif;
   --margin: clamp(16px, 2.6vw, 40px);
   --gap-section: clamp(96px, 12vw, 176px);
   --radius: 22px;
 
-  --t-display: clamp(52px, 7.4vw, 124px);
+  --t-display: clamp(44px, 5vw, 80px);
   --t-h2: clamp(36px, 4.4vw, 68px);
   --t-lead: clamp(20px, 1.6vw, 23px);
   --t-body: 18px;
@@ -58,7 +67,7 @@ body {
 }
 img, video, svg { display: block; max-width: 100%; }
 a { color: inherit; }
-::selection { background: var(--accent); color: #fff; }
+::selection { background: var(--accent); color: var(--cornsilk); }
 :focus-visible { outline: 3px solid var(--accent); outline-offset: 3px; border-radius: 4px; }
 
 h1, h2, h3 { font-weight: 400; margin: 0; text-wrap: balance; }
@@ -86,10 +95,10 @@ p { margin: 0; text-wrap: pretty; }
   transition: transform 0.18s var(--ease-out), background-color 0.18s;
 }
 .button:active { transform: scale(0.97); }
-.button.accent { background: var(--accent-button); color: #fff; }
+.button.accent { background: var(--accent-button); color: var(--cornsilk); }
 .button.accent:hover { background: var(--accent-press); }
 .button.plain { background: var(--paper); color: var(--ink); }
-.button.plain:hover { background: #fff; }
+.button.plain:hover { background: var(--paper-deep); }
 .button.small { padding: 11px 18px; font-size: var(--t-small); }
 
 main { min-height: 60vh; }
@@ -99,7 +108,7 @@ main { min-height: 60vh; }
   position: relative; overflow: hidden;
   height: calc(100svh - 62px); min-height: 600px; max-height: 1000px;
   display: grid; grid-template-rows: auto 1fr auto;
-  padding: clamp(24px, 3.4vw, 52px) 0 clamp(28px, 4vw, 56px);
+  padding: clamp(48px, 9vh, 104px) 0 clamp(28px, 4vw, 56px);
 }
 .hero h1 {
   position: relative; z-index: 2;
@@ -141,10 +150,10 @@ main { min-height: 60vh; }
 .msg.you { justify-self: end; background: var(--on-night); color: var(--ink); }
 .msg .who { display: block; font-size: var(--t-small); color: var(--on-night-soft); margin-bottom: 4px; }
 .msg.you .who { color: var(--ink-soft); }
-.msg.truth { border-left: 3px solid var(--accent); }
+.msg.truth { border-left: 3px solid var(--accent-soft); }
 
 /* Accent field */
-.field-accent { margin-top: var(--gap-section); background: var(--accent); color: var(--ink); }
+.field-accent { margin-top: var(--gap-section); background: var(--accent-soft); color: var(--ink); }
 .teacher { display: grid; grid-template-columns: 1.1fr 1fr; align-items: stretch; }
 .teacher figure { margin: 0; position: relative; min-height: 520px; }
 .teacher figure img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
@@ -153,7 +162,7 @@ main { min-height: 60vh; }
 .teacher-text .h2 { max-width: 12ch; }
 pre { margin: 0; background: var(--night); color: var(--on-night); padding: 18px 20px; border-radius: 12px; overflow-x: auto; font-size: var(--t-small); line-height: 1.5; max-width: 100%; }
 code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.88em; }
-:not(pre) > code { background: rgba(17, 17, 16, 0.08); padding: 0.1em 0.35em; border-radius: 5px; }
+:not(pre) > code { background: rgba(40, 54, 24, 0.08); padding: 0.1em 0.35em; border-radius: 5px; }
 .link { font-size: var(--t-body); text-underline-offset: 5px; text-decoration-thickness: 1px; }
 
 /* Course spotlight */
@@ -179,15 +188,9 @@ code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.88em
 .foot-links { display: flex; flex-wrap: wrap; gap: 28px; font-size: var(--t-body); }
 .foot-links a { text-decoration: none; opacity: 0.85; }
 .foot-links a:hover { opacity: 1; }
-.foot-name {
-  display: flex; align-items: center; gap: 0.12em;
-  font-weight: 700; letter-spacing: -0.045em; line-height: 0.9; font-variation-settings: "opsz" 72;
-  font-size: clamp(40px, 12.2vw, 200px); margin: 64px 0 28px; white-space: nowrap; overflow: hidden;
-}
-.foot-name .mark { width: 0.78em; height: 0.78em; margin-right: 0.08em; }
-.credits { font-size: var(--t-small); color: var(--on-night-soft); max-width: 70ch; line-height: 1.5; }
-.credits summary { cursor: pointer; }
-.credits p { margin-top: 12px; }
+.foot-name { display: flex; align-items: center; gap: 8px; margin: 40px 0 0; font-weight: 700; font-size: 20px; letter-spacing: -0.02em; line-height: 1; }
+.foot-name .mark { width: 24px; height: 24px; }
+.credits { font-size: var(--t-small); color: var(--ink-soft); line-height: 1.6; }
 .credits a { color: inherit; }
 
 /* App pages */
@@ -206,7 +209,7 @@ code { font-family: ui-monospace, "SF Mono", Menlo, monospace; font-size: 0.88em
   padding: 26px 28px; border-radius: 16px; background: var(--paper); text-decoration: none;
   transition: background-color 0.2s, transform 0.25s var(--ease-out);
 }
-a.row:hover { background: #fff; transform: translateX(4px); }
+a.row:hover { background: var(--paper); transform: translateX(4px); }
 .row h2 { font-size: var(--t-h3); line-height: 1.05; letter-spacing: -0.02em; }
 .row p { color: var(--ink-soft); font-size: var(--t-body); max-width: 60ch; }
 .row .count { font-size: var(--t-small); color: var(--ink-soft); white-space: nowrap; }

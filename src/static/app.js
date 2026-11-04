@@ -438,8 +438,13 @@ function renderAbout() {
         <p>Plato wrote his philosophy as dialogues: Socrates asks, the student answers, and the next question takes the answer apart. That is the teaching method here. Plato's Academy stood in a grove of olive trees outside Athens, which is where the tree in the logo comes from.</p>
         <p><a class="link" href="#/setup">Connect your agent</a></p>
       </section>
+      <section>
+        <h2>Picture credits</h2>
+        <p class="credits" id="credits"></p>
+      </section>
     </div>
   </div>`;
+  renderCredits();
 }
 
 function renderCourse(field, subfield, course) {
@@ -531,6 +536,7 @@ async function render() {
 
 async function renderCredits() {
   const el = document.getElementById("credits");
+  if (!el) return;
   try {
     const credits = await fetch(`${M}credits.json`).then((r) => r.json());
     el.innerHTML = `${credits
@@ -543,4 +549,3 @@ async function renderCredits() {
 
 window.addEventListener("hashchange", render);
 render();
-renderCredits();
