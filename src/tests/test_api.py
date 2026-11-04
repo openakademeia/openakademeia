@@ -118,3 +118,18 @@ def test_course_page_links_the_reader(client):
 
     assert "reading_url" in script[script.index("function renderCourse(") : script.index("function renderNotFound")]
     assert "function renderReader(" in script
+
+
+@pytest.mark.parametrize("path", ["/", "/app.js", "/style.css"])
+def test_app_shell_is_revalidated_on_every_load(client, path):
+    response = client.get(path)
+
+    assert response.status_code == 200
+    assert response.headers["cache-control"] == "no-cache"
+
+
+def test_media_keeps_default_caching(client):
+    response = client.get("/media/plato.png")
+
+    assert response.status_code == 200
+    assert "cache-control" not in response.headers

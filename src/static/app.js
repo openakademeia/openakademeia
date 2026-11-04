@@ -389,7 +389,13 @@ function renderSetup() {
     2
   );
   view.innerHTML = `<div class="page">
-    ${pageHead("Connect your agent", null, "Plato runs inside the AI you already use. Point it at this server once; after that it signs you up and fetches each lesson as you reach it.")}
+    <header class="page-head">
+      <h1>Connect your agent</h1>
+      <div class="plato-intro">
+        <span class="plato-mark" role="img" aria-label="Plato"></span>
+        <p class="lead">Plato runs inside the AI you already use. Point it at this server once; after that it signs you up and fetches each lesson as you reach it.</p>
+      </div>
+    </header>
     <div class="setup">
       <section>
         <h2>Claude Code</h2>
@@ -432,8 +438,13 @@ function renderAbout() {
         <p>Plato wrote his philosophy as dialogues: Socrates asks, the student answers, and the next question takes the answer apart. That is the teaching method here. Plato's Academy stood in a grove of olive trees outside Athens, which is where the tree in the logo comes from.</p>
         <p><a class="link" href="#/setup">Connect your agent</a></p>
       </section>
+      <section>
+        <h2>Picture credits</h2>
+        <p class="credits" id="credits"></p>
+      </section>
     </div>
   </div>`;
+  renderCredits();
 }
 
 function renderCourse(field, subfield, course) {
@@ -525,6 +536,7 @@ async function render() {
 
 async function renderCredits() {
   const el = document.getElementById("credits");
+  if (!el) return;
   try {
     const credits = await fetch(`${M}credits.json`).then((r) => r.json());
     el.innerHTML = `${credits
@@ -537,4 +549,3 @@ async function renderCredits() {
 
 window.addEventListener("hashchange", render);
 render();
-renderCredits();
