@@ -231,10 +231,19 @@ function reveal() {
   return () => io.disconnect();
 }
 
-const PLUGIN_SOURCE = "git+https://github.com/slow42/openacademy#subdirectory=plugins/plato";
+// Plato ships from the philosophers plugin marketplace; the bare MCP server is for clients without plugins.
+const MARKETPLACE = "openakademeia/philosophers";
+const PLUGIN_SOURCE = `git+https://github.com/${MARKETPLACE}#subdirectory=plugins/plato`;
+const PLATO_DEFAULT_URL = "http://localhost:8080";
 
 function claudeCommand() {
-  return `claude mcp add openacademy -e OPENACADEMY_URL=${location.origin} -- uvx --from "${PLUGIN_SOURCE}" openacademy-plato`;
+  return `/plugin marketplace add ${MARKETPLACE}\n/plugin install plato@philosophers`;
+}
+
+function serverUrlNote() {
+  return location.origin === PLATO_DEFAULT_URL
+    ? `Plato reaches this server at its default address, <code>${PLATO_DEFAULT_URL}</code>.`
+    : `Plato defaults to <code>${PLATO_DEFAULT_URL}</code>. To use this server, start your agent with <code>OPENAKADEMEIA_URL=${esc(location.origin)}</code> in its environment.`;
 }
 
 async function renderHome() {
@@ -425,7 +434,7 @@ function markdown(text) {
 function renderSetup() {
   const origin = location.origin;
   const json = JSON.stringify(
-    { mcpServers: { openacademy: { command: "uvx", args: ["--from", PLUGIN_SOURCE, "openacademy-plato"], env: { OPENACADEMY_URL: origin } } } },
+    { mcpServers: { plato: { command: "uvx", args: ["--from", PLUGIN_SOURCE, "openakademeia-plato"], env: { OPENAKADEMEIA_URL: origin } } } },
     null,
     2
   );
@@ -440,11 +449,20 @@ function renderSetup() {
     <div class="setup">
       <section>
         <h2>Claude Code</h2>
-        <p>You need <code>uv</code> on your machine. Then run:</p>
+        <p>You need <code>uv</code> on your machine. Then, inside Claude Code:</p>
         <pre><code>${esc(claudeCommand())}</code></pre>
+        <p class="note">${serverUrlNote()}</p>
       </section>
       <section>
-        <h2>Cursor, Codex, Gemini CLI</h2>
+        <h2>Codex</h2>
+        <pre><code>${esc(`codex plugin marketplace add ${MARKETPLACE}\ncodex plugin add plato@philosophers`)}</code></pre>
+      </section>
+      <section>
+        <h2>Cursor</h2>
+        <p>Add <code>https://github.com/${MARKETPLACE}</code> as a plugin marketplace, then install <code>plato</code>.</p>
+      </section>
+      <section>
+        <h2>Gemini CLI and other MCP clients</h2>
         <p>Add this to the agent's MCP servers config:</p>
         <pre><code>${esc(json)}</code></pre>
       </section>
@@ -459,7 +477,7 @@ function renderSetup() {
 
 function renderAbout() {
   view.innerHTML = `<div class="page text">
-    ${pageHead("About openacademy", null, "Courses you take with the AI you already use. The courses and the agent that teaches them are open source.")}
+    ${pageHead("About openakademeia", null, "Courses you take with the AI you already use. The courses and the agent that teaches them are open source.")}
     <div class="setup">
       <section>
         <h2>How it works</h2>
@@ -468,7 +486,7 @@ function renderAbout() {
       <section>
         <h2>What is open source</h2>
         <p>The course content is open source: every lesson, syllabus and course book. So is the Plato plugin. You can read them, run them against your own server, fix a lesson you think is wrong, or write a new course.</p>
-        <p><a class="link" href="https://github.com/slow42/openacademy">Source on GitHub</a></p>
+        <p><a class="link" href="https://github.com/openakademeia/openakademeia">Courses and server on GitHub</a> · <a class="link" href="https://github.com/${MARKETPLACE}">Plato on GitHub</a></p>
       </section>
       <section>
         <h2>What the web app adds</h2>

@@ -1,4 +1,4 @@
-"""openacademy server: catalog, learner state, progress, and the Plato API."""
+"""openakademeia server: catalog, learner state, progress, and the Plato API."""
 
 import os
 import re
@@ -30,7 +30,7 @@ from sqlalchemy.engine import Engine
 
 REPO_ROOT = Path(__file__).resolve().parent.parent
 DEFAULT_CONTENT = REPO_ROOT / "content"
-DEFAULT_DATABASE_URL = f"sqlite:///{REPO_ROOT / '.openacademy.db'}"
+DEFAULT_DATABASE_URL = f"sqlite:///{REPO_ROOT / '.openakademeia.db'}"
 STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 CourseKey = tuple[str, str, str]
@@ -212,7 +212,7 @@ def create_app(content_dir: Path, database_url: str) -> FastAPI:
         for course in subfield["courses"]
     }
     engine = _make_engine(database_url)
-    app = FastAPI(title="openacademy")
+    app = FastAPI(title="openakademeia")
 
     def find_course(field_id: str, subfield_id: str, course_id: str) -> dict:
         try:
@@ -377,6 +377,6 @@ def create_app(content_dir: Path, database_url: str) -> FastAPI:
 
 
 app = create_app(
-    Path(os.environ.get("OPENACADEMY_CONTENT", DEFAULT_CONTENT)),
+    Path(os.environ.get("OPENAKADEMEIA_CONTENT", DEFAULT_CONTENT)),
     os.environ.get("DATABASE_URL", DEFAULT_DATABASE_URL),
 )

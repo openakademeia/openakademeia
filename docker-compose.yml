@@ -1,5 +1,5 @@
 services:
-  openacademy:
+  openakademeia:
     build:
       context: .
       dockerfile: src/Dockerfile

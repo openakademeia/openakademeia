@@ -1,4 +1,4 @@
-# openacademy
+# openakademeia
 
 A curated course library you attach your own AI to. The platform owns the content and its coherence; your agent, running the Plato protocol, owns the conversation. Courses teach by making you commit to a prediction, breaking it, and introducing the concept as the repair.
 
@@ -14,19 +14,18 @@ Learner state lives on the server, never on the learner's machine. The Plato API
 
 ## Connect your AI
 
-Each course page shows the exact commands. For Claude Code:
+Plato, the teaching agent, lives in [openakademeia/philosophers](https://github.com/openakademeia/philosophers) as a plugin (MCP server + skill). In Claude Code:
 
 ```
-claude mcp add openacademy -e OPENACADEMY_URL=http://localhost:8080 -- \
-  uvx --from "git+https://github.com/slow42/openacademy#subdirectory=plugins/plato" openacademy-plato
+/plugin marketplace add openakademeia/philosophers
+/plugin install plato@philosophers
 ```
 
-Then say "Start the course mathematics/algebra/linear-algebra." Plato signs up on first use and stores its token in `~/.openacademy/`. See `plugins/plato/README.md` for Cursor, Codex, Gemini CLI, and hosted agents.
+Then say "Start the course mathematics/algebra/linear-algebra." Plato talks to `OPENAKADEMEIA_URL` (default `http://localhost:8080`, the local server), signs up on first use, and stores its token in `~/.openakademeia/`. The site's setup page (`#/setup`) and the philosophers README cover Codex, Cursor, and plain MCP config.
 
 ## Layout
 
 - `content/<field>/field.yaml`, `<subfield>/subfield.yaml`, `<course>/course.yaml`: the catalog. A course directory holds `syllabus.md`, `reading.md` (the course book, one `### Title {#id}` section per lesson, public on the site), and `lessons/*.md`; a course is flights of lessons, each lesson names its book section with `reading:` in `course.yaml`, and each lesson file has Commit, Truth, Repair, Exercises, and Twist sections. `src/tests/test_content.py` enforces that structure. Subfields without courses are listed as planned.
-- `plugins/plato/`: the Plato MCP server (`plato/`), a thin client of the API, plus the teaching protocol (`skills/plato/SKILL.md`) it hands to the agent as instructions. Open source.
 - `src/`: FastAPI server (`app.py`: catalog, learners, enrollments, attempts, streak), static frontend (`static/`), tests, Dockerfile.
 - `docs/`: foundations, research notes, and design specs.
 
@@ -34,10 +33,9 @@ Then say "Start the course mathematics/algebra/linear-algebra." Plato signs up o
 
 ```
 cd src && pip install -r requirements-dev.txt && pytest
-cd plugins/plato && pip install -e . pytest && pytest
 ```
 
-Server tests run against the real `content/` plus a synthetic pro-tier course, on a temporary SQLite database. Plugin tests drive the client against an in-process server.
+Server tests run against the real `content/` plus a synthetic pro-tier course, on a temporary SQLite database. Plato's client tests run in the philosophers repo against this server in-process; they expect this checkout next to it (or `OPENAKADEMEIA_REPO`).
 
 ## Status
 
