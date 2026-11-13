@@ -58,7 +58,7 @@ def test_root_serves_the_frontend_page(client):
 
     assert response.status_code == 200
     assert response.headers["content-type"].startswith("text/html")
-    assert "openacademy" in response.text
+    assert "openakademeia" in response.text
 
 
 def test_frontend_points_agents_at_the_v1_catalog_and_mcp_plugin(client):
@@ -66,11 +66,13 @@ def test_frontend_points_agents_at_the_v1_catalog_and_mcp_plugin(client):
 
     assert "/api/v1/catalog" in script
     assert "/api/fields" not in script
-    assert "openacademy-plato" in script
+    assert "openakademeia-plato" in script
+    assert "openakademeia/philosophers" in script
+    assert "plato@philosophers" in script
     assert "download" not in script.lower()
     assert "renderSetup" in script
     assert "function renderCourse(" in script
-    assert "openacademy-plato" not in script[script.index("function renderCourse(") : script.index("function renderNotFound")]
+    assert "openakademeia-plato" not in script[script.index("function renderCourse(") : script.index("function renderNotFound")]
 
 
 def test_header_links_to_the_setup_page(client):

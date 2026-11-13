@@ -5,7 +5,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 COPY src/app.py ./
 COPY src/static ./static
 COPY content /data/content
-ENV OPENACADEMY_CONTENT=/data/content DATABASE_URL=sqlite:////data/db/openacademy.db
+ENV OPENAKADEMEIA_CONTENT=/data/content DATABASE_URL=sqlite:////data/db/openakademeia.db
 RUN mkdir -p /data/db
 EXPOSE 8080
 CMD ["uvicorn", "app:app", "--host", "0.0.0.0", "--port", "8080"]

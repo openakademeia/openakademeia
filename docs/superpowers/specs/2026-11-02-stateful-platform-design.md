@@ -4,12 +4,12 @@ Date: 2026-11-02. Supersedes the download-bundle model in `2026-10-07-platform-s
 
 ## Decision
 
-openacademy is a freemium product. Content (`content/`) and the agent plugin (`plugins/plato`) are open source and thin. The server (`src/`) is the product: it owns learner state, progress, streaks, next-rung selection, entitlements, and the dashboard. There is one server codebase and one Docker image; a local run is a faithful mirror of the hosted service, selected only by `DATABASE_URL` (SQLite locally, Postgres hosted). No local-only code paths, no markdown contract: the agent never reads rungs from disk or writes `progress.md`. All rung text and all state move through the HTTP API.
+openakademeia is a freemium product. Content (`content/`) and the agent plugin (Plato, now in the `philosophers` repo) are open source and thin. The server (`src/`) is the product: it owns learner state, progress, streaks, next-rung selection, entitlements, and the dashboard. There is one server codebase and one Docker image; a local run is a faithful mirror of the hosted service, selected only by `DATABASE_URL` (SQLite locally, Postgres hosted). No local-only code paths, no markdown contract: the agent never reads rungs from disk or writes `progress.md`. All rung text and all state move through the HTTP API.
 
 ## Architecture
 
 ```
-learner's agent ── MCP (plugins/plato) ──► server (src/)
+learner's agent ── MCP (philosophers/plugins/plato) ──► server (src/)
                                               ├─ content/ loaded at start
                                               ├─ DATABASE_URL: sqlite | postgres
                                               └─ web: catalog, dashboard, connect-your-AI

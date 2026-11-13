@@ -1,6 +1,6 @@
 # Colour palette
 
-openacademy's main palette: warm black and white, with olive (the Academy's olive grove, the tree in the logo) as the only accent. Every colour on the site is a role in `:root` of `src/static/style.css`; add new colours there, not inline.
+openakademeia's main palette: warm black and white, with olive (the Academy's olive grove, the tree in the logo) as the only accent. Every colour on the site is a role in `:root` of `src/static/style.css`; add new colours there, not inline.
 
 ## Neutrals
 

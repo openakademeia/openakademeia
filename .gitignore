@@ -2,6 +2,6 @@ __pycache__/
 .pytest_cache/
 *.pyc
 .venv/
-.openacademy.db
+.openakademeia.db
 data/
 *.egg-info/
