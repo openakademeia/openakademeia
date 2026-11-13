@@ -3,7 +3,7 @@ title: Linear Algebra
 summary: "From arrows to the singular value decomposition, geometry first. Each chapter is built around something you probably believe that turns out to be wrong. School algebra and the coordinate plane are all you need."
 status: in progress
 tier: free
-flights:
+chapters:
   - id: 01-arrows-and-columns
     title: Arrows and columns
     lessons:

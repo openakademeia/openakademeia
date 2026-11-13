@@ -1,6 +1,6 @@
 # Linear Algebra
 
-The reading for the course: one section per lesson, in course order. Each section explains an idea and why it holds. Lessons ask you to predict before you read; reading ahead is allowed, but you will miss the surprise.
+The reading for the course: one concept per lesson, in course order, each explained with why it holds. Lessons ask you to predict before you read; reading ahead is allowed, but you will miss the surprise.
 
 ## 1. Arrows and columns
 

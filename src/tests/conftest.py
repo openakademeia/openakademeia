@@ -13,9 +13,9 @@ PRO_COURSE = """id: pro-course
 title: Pro Course
 summary: Paid placeholder.
 tier: pro
-flights:
+chapters:
   - id: 01-only
-    title: Only flight
+    title: Only chapter
     lessons:
       - id: 01-only-lesson
         title: Only lesson

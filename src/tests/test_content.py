@@ -6,13 +6,13 @@ from pathlib import Path
 import pytest
 import yaml
 
-from app import lesson_sequence, load_catalog, reading_sections
+from app import lesson_sequence, load_catalog, reading_concepts
 
 CONTENT = Path(__file__).resolve().parents[2] / "content"
 REQUIRED_SECTIONS = ["Commit", "Truth", "Repair", "Exercises", "Twist"]
 ALLOWED_SECTIONS = {*REQUIRED_SECTIONS, "Artifact"}
 REPAIR_MAX_WORDS = 150
-READING_SECTION_MAX_WORDS = 450
+READING_CONCEPT_MAX_WORDS = 450
 
 COURSES = [
     (manifest.parent, yaml.safe_load(manifest.read_text())) for manifest in sorted(CONTENT.glob("*/*/*/course.yaml"))
@@ -61,33 +61,33 @@ def test_lesson_has_an_exercise_only_the_learner_can_answer(course_dir, lesson):
 
 
 @pytest.mark.parametrize(("course_dir", "lesson"), LESSONS)
-def test_lesson_points_at_a_reading_section(course_dir, lesson):
-    assert lesson.get("reading") in reading_sections((course_dir / "reading.md").read_text())
+def test_lesson_points_at_a_reading_concept(course_dir, lesson):
+    assert lesson.get("reading") in reading_concepts((course_dir / "reading.md").read_text())
 
 
 @pytest.mark.parametrize(("course_dir", "course"), [pytest.param(d, c, id=c["id"]) for d, c in COURSES if (d / "reading.md").exists()])
-def test_every_reading_section_is_used_and_readable(course_dir, course):
-    sections = reading_sections((course_dir / "reading.md").read_text())
+def test_every_reading_concept_is_used_and_readable(course_dir, course):
+    concepts = reading_concepts((course_dir / "reading.md").read_text())
     used = {lesson.get("reading") for _, lesson in lesson_sequence(course)}
 
-    assert set(sections) == used
-    for section_id, text in sections.items():
-        assert words(text) <= READING_SECTION_MAX_WORDS, section_id
+    assert set(concepts) == used
+    for concept_id, text in concepts.items():
+        assert words(text) <= READING_CONCEPT_MAX_WORDS, concept_id
 
 
-def test_reading_sections_split_on_anchored_headings_only():
+def test_reading_concepts_split_on_anchored_headings_only():
     text = "# Course\n\nIntro.\n\n## 1. Chapter\n\n### First {#first}\n\nOne.\n\n### Second {#second}\n\nTwo.\n\n---\n\nFooter.\n"
 
-    assert reading_sections(text) == {"first": "### First\n\nOne.\n", "second": "### Second\n\nTwo.\n"}
+    assert reading_concepts(text) == {"first": "### First\n\nOne.\n", "second": "### Second\n\nTwo.\n"}
 
 
-def test_a_lesson_naming_a_missing_reading_section_fails_the_load(tmp_path):
+def test_a_lesson_naming_a_missing_reading_concept_fails_the_load(tmp_path):
     course = tmp_path / "f" / "s" / "c"
     course.mkdir(parents=True)
     (tmp_path / "f" / "field.yaml").write_text("id: f\ntitle: F\n")
     (tmp_path / "f" / "s" / "subfield.yaml").write_text("id: s\ntitle: S\n")
     (course / "course.yaml").write_text(
-        "id: c\ntitle: C\nflights:\n  - id: one\n    title: One\n    lessons:\n"
+        "id: c\ntitle: C\nchapters:\n  - id: one\n    title: One\n    lessons:\n"
         "      - {id: l, title: L, kind: confirm, file: l.md, reading: nowhere}\n"
     )
     (course / "reading.md").write_text("### Somewhere {#somewhere}\n\nText.\n")

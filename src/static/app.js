@@ -248,9 +248,9 @@ function serverUrlNote() {
 
 async function renderHome() {
   const fields = await loadCatalog();
-  const featured = fields.flatMap((f) => f.subfields.flatMap((s) => s.courses)).find((c) => c.flights && c.flights.length);
+  const featured = fields.flatMap((f) => f.subfields.flatMap((s) => s.courses)).find((c) => c.chapters && c.chapters.length);
   const chapters = featured
-    ? featured.flights.map((f) => `<li>${esc(f.title)}<span>${f.lessons.length ? plural(f.lessons.length, "lesson") : "Being written"}</span></li>`).join("")
+    ? featured.chapters.map((f) => `<li>${esc(f.title)}<span>${f.lessons.length ? plural(f.lessons.length, "lesson") : "Being written"}</span></li>`).join("")
     : "";
   const coursePath = featured ? `#/${featured.field}/${featured.subfield}/${featured.id}` : "#/courses";
   view.innerHTML = `
@@ -508,7 +508,7 @@ function renderAbout() {
 
 function renderCourse(field, subfield, course) {
   const path = `${field.id}/${subfield.id}/${course.id}`;
-  const lessons = (course.flights || []).reduce((n, f) => n + f.lessons.length, 0);
+  const lessons = (course.chapters || []).reduce((n, f) => n + f.lessons.length, 0);
   const tier = course.tier && course.tier !== "free" ? `${esc(course.tier)} plan` : "Free";
   const reader = course.reading_url ? `<a class="button small plain" href="#/${path}/read">Read the book</a>` : "";
   view.innerHTML = `<div class="page">
@@ -530,7 +530,7 @@ function renderCourse(field, subfield, course) {
   </div>`;
 }
 
-async function renderReader(field, subfield, course, sectionId) {
+async function renderReader(field, subfield, course, conceptId) {
   const path = `${field.id}/${subfield.id}/${course.id}`;
   const { text } = await fetch(course.reading_url).then((r) => r.json());
   const body = text.replace(/^# .*\n/, "");
@@ -546,7 +546,7 @@ async function renderReader(field, subfield, course, sectionId) {
       <aside class="course-side"><nav class="toc" aria-label="Contents"><p>Contents</p><ol>${contents}</ol></nav></aside>
     </div>
   </div>`;
-  if (sectionId) setTimeout(() => document.getElementById(sectionId)?.scrollIntoView({ block: "start" }), 0);
+  if (conceptId) setTimeout(() => document.getElementById(conceptId)?.scrollIntoView({ block: "start" }), 0);
 }
 
 function renderNotFound() {
@@ -554,7 +554,7 @@ function renderNotFound() {
 }
 
 async function route() {
-  const [first, subfieldId, courseId, page, sectionId] = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);
+  const [first, subfieldId, courseId, page, conceptId] = location.hash.replace(/^#\/?/, "").split("/").filter(Boolean);
   if (!first) return renderHome();
   if (first === "setup") return renderSetup();
   if (first === "about") return renderAbout();
