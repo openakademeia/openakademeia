@@ -1,6 +1,6 @@
 # Linear Algebra: authoring notes
 
-Not rendered; `syllabus.md` is what learners see. Status: syllabus approved 2026-11-02 (proposed 2026-10-07); chapter 1 written, chapters 2 to 14 and the epilogue are planned flights with no lessons.
+Not rendered; `syllabus.md` is what learners see. Status: syllabus approved 2026-11-02 (proposed 2026-10-07); chapter 1 written, chapters 2 to 14 and the epilogue are planned chapters with no lessons.
 
 ## Sources
 
@@ -9,8 +9,8 @@ Not rendered; `syllabus.md` is what learners see. Status: syllabus approved 2026
 
 ## Rules
 
-- Each chapter is one flight of 3 to 5 lessons. Lesson mix per `skills/plato/SKILL.md` in the philosophers repo's Plato plugin: confirm, break, unify kinds; about 1 in 4 lessons a trap; at least one human-only exercise per lesson.
-- The explanation lives once, in `reading.md`; lessons hold only the trap, its answer key, and the case-specific Repair. The book is public, so its sections explain ideas with their own examples and never contain a lesson's Commit numbers or Truth.
+- Each chapter has 3 to 5 lessons. Lesson mix per `skills/plato/SKILL.md` in the philosophers repo's Plato plugin: confirm, break, unify kinds; about 1 in 4 lessons a trap; at least one human-only exercise per lesson.
+- The explanation lives once, in `reading.md`; lessons hold only the trap, its answer key, and the case-specific Repair. The book is public, so it explains each concept with their own examples and never contain a lesson's Commit numbers or Truth.
 - Interactive artifacts matter most in chapters 3, 4, 8, 12, and 14, where the claim is about a picture.
 
 ## Decisions

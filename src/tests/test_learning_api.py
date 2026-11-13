@@ -48,13 +48,13 @@ def test_next_returns_the_first_lesson_with_its_text(client, auth, enrollment_id
     assert response.status_code == 200
     body = response.json()
     assert body["done"] is False
-    assert body["flight"]["id"] == "01-arrows-and-columns"
+    assert body["chapter"]["id"] == "01-arrows-and-columns"
     assert body["lesson"]["id"] == "01-two-numbers-one-arrow"
     assert body["lesson"]["kind"] == "confirm"
     assert body["lesson"]["text"].startswith("# Two numbers, one arrow")
 
 
-def test_next_carries_only_the_lessons_reading_section(client, auth, enrollment_id):
+def test_next_carries_only_the_lessons_reading_concept(client, auth, enrollment_id):
     reading = client.get(f"/api/v1/enrollments/{enrollment_id}/next", headers=auth).json()["lesson"]["reading"]
 
     assert reading.startswith("### Vectors are displacements\n")

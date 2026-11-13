@@ -25,10 +25,10 @@ def test_catalog_lists_mathematics_field_with_subfields_and_courses(client):
     }
     course = subfields["algebra"]["courses"][0]
     assert course["id"] == "linear-algebra"
-    assert len(course["flights"]) == 15
-    assert course["flights"][0]["id"] == "01-arrows-and-columns"
-    assert [lesson["kind"] for lesson in course["flights"][0]["lessons"]] == ["confirm", "confirm", "break", "confirm", "unify"]
-    assert course["flights"][1]["lessons"] == []
+    assert len(course["chapters"]) == 15
+    assert course["chapters"][0]["id"] == "01-arrows-and-columns"
+    assert [lesson["kind"] for lesson in course["chapters"][0]["lessons"]] == ["confirm", "confirm", "break", "confirm", "unify"]
+    assert course["chapters"][1]["lessons"] == []
     assert [course["id"] for course in subfields["analysis"]["courses"]] == ["pro-course"]
 
 

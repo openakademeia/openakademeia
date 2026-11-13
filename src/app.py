@@ -23,8 +23,10 @@ from sqlalchemy import (
     Text,
     UniqueConstraint,
     create_engine,
+    inspect,
     insert,
     select,
+    text as sql_text,
 )
 from sqlalchemy.engine import Engine
 
@@ -35,7 +37,7 @@ STATIC_DIR = Path(__file__).resolve().parent / "static"
 
 CourseKey = tuple[str, str, str]
 
-SECTION_HEADING = re.compile(r"^### (?P<title>.+?) \{#(?P<id>[a-z0-9-]+)\}$")
+CONCEPT_HEADING = re.compile(r"^### (?P<title>.+?) \{#(?P<id>[a-z0-9-]+)\}$")
 
 metadata = MetaData()
 
@@ -65,7 +67,7 @@ attempts = Table(
     metadata,
     Column("id", Integer, primary_key=True),
     Column("enrollment_id", Integer, ForeignKey("enrollments.id"), nullable=False),
-    Column("flight_id", String(64), nullable=False),
+    Column("chapter_id", String(64), nullable=False),
     Column("lesson_id", String(64), nullable=False),
     Column("commit", Text, nullable=False),
     Column("confidence", Integer, nullable=False),
@@ -119,32 +121,32 @@ def _read_manifest(path: Path) -> dict:
     return data
 
 
-def reading_sections(text: str) -> dict[str, str]:
-    """Split a course reading into its `### Title {#id}` sections; each runs to the next heading of level 1-3."""
-    sections: dict[str, list[str]] = {}
+def reading_concepts(text: str) -> dict[str, str]:
+    """Split a course reading into its `### Title {#id}` concepts; each runs to the next heading of level 1-3."""
+    concepts: dict[str, list[str]] = {}
     current: list[str] | None = None
     for line in text.splitlines():
-        heading = SECTION_HEADING.match(line)
+        heading = CONCEPT_HEADING.match(line)
         if heading:
-            if heading["id"] in sections:
-                raise ValueError(f"duplicate reading section {heading['id']}")
-            current = sections[heading["id"]] = [f"### {heading['title']}"]
+            if heading["id"] in concepts:
+                raise ValueError(f"duplicate reading concept {heading['id']}")
+            current = concepts[heading["id"]] = [f"### {heading['title']}"]
         elif re.match(r"^#{1,3} ", line) or line.strip() == "---":
             current = None
         elif current is not None:
             current.append(line)
-    return {section_id: "\n".join(lines).strip() + "\n" for section_id, lines in sections.items()}
+    return {concept_id: "\n".join(lines).strip() + "\n" for concept_id, lines in concepts.items()}
 
 
 def _load_reading(course_dir: Path, course: dict) -> dict | None:
-    """The course reading with its sections, after checking every lesson points at a section that exists."""
+    """The course reading with its concepts, after checking every lesson points at a concept that exists."""
     path = course_dir / "reading.md"
     text = path.read_text() if path.exists() else None
-    sections = reading_sections(text) if text else {}
+    concepts = reading_concepts(text) if text else {}
     for _, lesson in lesson_sequence(course):
-        if "reading" in lesson and lesson["reading"] not in sections:
-            raise ValueError(f"lesson {lesson['id']} names missing reading section {lesson['reading']!r} in {course_dir}")
-    return {"text": text, "sections": sections} if text else None
+        if "reading" in lesson and lesson["reading"] not in concepts:
+            raise ValueError(f"lesson {lesson['id']} names missing reading concept {lesson['reading']!r} in {course_dir}")
+    return {"text": text, "concepts": concepts} if text else None
 
 
 def load_catalog(content_dir: Path) -> tuple[list[dict], dict[CourseKey, Path], dict[CourseKey, dict]]:
@@ -179,7 +181,7 @@ def load_catalog(content_dir: Path) -> tuple[list[dict], dict[CourseKey, Path], 
 
 
 def lesson_sequence(course: dict) -> list[tuple[dict, dict]]:
-    return [(flight, lesson) for flight in course.get("flights", []) for lesson in flight.get("lessons", [])]
+    return [(chapter, lesson) for chapter in course.get("chapters", []) for lesson in chapter.get("lessons", [])]
 
 
 def streak_weeks(days: list[date], today: date) -> int:
@@ -199,6 +201,10 @@ def streak_weeks(days: list[date], today: date) -> int:
 def _make_engine(database_url: str) -> Engine:
     connect_args = {"check_same_thread": False} if database_url.startswith("sqlite") else {}
     engine = create_engine(database_url, connect_args=connect_args)
+    # Databases from before chapters were renamed from flights still have attempts.flight_id.
+    if "attempts" in inspect(engine).get_table_names() and "flight_id" in {c["name"] for c in inspect(engine).get_columns("attempts")}:
+        with engine.begin() as conn:
+            conn.execute(sql_text("ALTER TABLE attempts RENAME COLUMN flight_id TO chapter_id"))
     metadata.create_all(engine)
     return engine
 
@@ -253,7 +259,7 @@ def create_app(content_dir: Path, database_url: str) -> FastAPI:
     def next_lesson(enrollment: dict) -> tuple[dict, dict] | None:
         course = courses[(enrollment["field"], enrollment["subfield"], enrollment["course"])]
         done = completed_lessons(enrollment["id"])
-        return next(((flight, lesson) for flight, lesson in lesson_sequence(course) if lesson["id"] not in done), None)
+        return next(((chapter, lesson) for chapter, lesson in lesson_sequence(course) if lesson["id"] not in done), None)
 
     def enrollment_summary(enrollment: dict) -> dict:
         course = courses[(enrollment["field"], enrollment["subfield"], enrollment["course"])]
@@ -329,19 +335,19 @@ def create_app(content_dir: Path, database_url: str) -> FastAPI:
         upcoming = next_lesson(enrollment)
         if upcoming is None:
             return {"done": True}
-        flight, lesson = upcoming
+        chapter, lesson = upcoming
         key = (enrollment["field"], enrollment["subfield"], enrollment["course"])
         course_dir = course_dirs[key]
-        sections = readings.get(key, {}).get("sections", {})
+        concepts = readings.get(key, {}).get("concepts", {})
         return {
             "done": False,
-            "flight": {"id": flight["id"], "title": flight["title"]},
+            "chapter": {"id": chapter["id"], "title": chapter["title"]},
             "lesson": {
                 "id": lesson["id"],
                 "title": lesson["title"],
                 "kind": lesson["kind"],
                 "text": (course_dir / lesson["file"]).read_text(),
-                "reading": sections.get(lesson.get("reading")),
+                "reading": concepts.get(lesson.get("reading")),
             },
         }
 
@@ -349,10 +355,10 @@ def create_app(content_dir: Path, database_url: str) -> FastAPI:
     def record_attempt(enrollment_id: int, body: AttemptIn, learner: dict = Depends(current_learner)) -> dict:
         enrollment = own_enrollment(enrollment_id, learner)
         course = courses[(enrollment["field"], enrollment["subfield"], enrollment["course"])]
-        flight_id = next((flight["id"] for flight, lesson in lesson_sequence(course) if lesson["id"] == body.lesson_id), None)
-        if flight_id is None:
+        chapter_id = next((chapter["id"] for chapter, lesson in lesson_sequence(course) if lesson["id"] == body.lesson_id), None)
+        if chapter_id is None:
             raise HTTPException(422, f"unknown lesson: {body.lesson_id}")
-        values = {**body.model_dump(), "enrollment_id": enrollment_id, "flight_id": flight_id, "created_at": _now()}
+        values = {**body.model_dump(), "enrollment_id": enrollment_id, "chapter_id": chapter_id, "created_at": _now()}
         with engine.begin() as conn:
             result = conn.execute(insert(attempts).values(**values))
         return {"id": result.inserted_primary_key[0], **values, "created_at": values["created_at"].isoformat()}
