@@ -50,19 +50,28 @@ function mediaTag(item) {
   return `<img src="${M}${item.img}" alt="" loading="lazy" decoding="async">`;
 }
 
-/* Cards stand on the inside wall of a cylinder whose far side faces the camera: far cards are small, near ones sweep past the edges. */
+/*
+ * Cards line the inside wall of a cylinder whose far side faces the camera. Two mirrored streams flow out of a
+ * dark screen at the vanishing point, one along each wall, so the walls seem to rush past as if moving forward.
+ */
 function startTunnel(root) {
   const stage = root.querySelector(".tunnel-stage");
-  const cards = TUNNEL.map((item) => {
+  const screen = document.createElement("div");
+  screen.className = "tunnel-screen";
+  stage.appendChild(screen);
+  const make = (item) => {
     const el = document.createElement("div");
     el.className = "tunnel-card";
     el.innerHTML = mediaTag(item);
     stage.appendChild(el);
     return { el, item, video: el.querySelector("video") };
-  });
-  const VISIBLE = 150;
+  };
+  // Alternate media between the walls so neighbours in TUNNEL land on opposite sides.
+  const streams = [-1, 1].map((side) => ({ side, cards: TUNNEL.filter((_, i) => i % 2 === (side < 0 ? 0 : 1)).map(make) }));
+  const all = streams.flatMap((s) => s.cards);
+  const VISIBLE = 150; // degrees from the vanishing point; past this a card is behind the camera
+  const SPEED = 0.036; // degrees per millisecond: about 1.3 cards a second
   let geo = null;
-  let period = 360;
   let phase = 0;
   let last = performance.now();
   let frame = 0;
@@ -72,41 +81,71 @@ function startTunnel(root) {
     const h = root.clientHeight;
     // On tall, narrow screens the ring is sized from the height and runs off both sides.
     const w = Math.max(root.clientWidth, h * 1.3);
-    // Solved so the far wall shows cards at about 0.3x and a card reaches 1.5x as it leaves the screen edge.
-    const radius = w * 0.47;
-    geo = { radius, inset: w * 0.23, persp: w * 0.3, height: Math.min(h * 0.42, w * 0.18) };
+    // Fitted to the reference: far cards about 7% of the width tall, about five per wall, edge cards about 5.5x the far ones.
+    const radius = w * 0.48;
+    geo = { radius, inset: w * 0.24, persp: w * 0.34, height: Math.min(h * 0.42, w * 0.21) };
     root.style.setProperty("--persp", `${geo.persp}px`);
-    const gap = geo.height * 0.04;
-    let along = 0;
-    for (const c of cards) {
-      c.w = geo.height * c.item.w;
-      c.el.style.width = `${c.w}px`;
-      c.el.style.height = `${geo.height}px`;
-      c.offset = ((along + c.w / 2) / radius) * (180 / Math.PI);
-      along += c.w + gap;
+    const gap = geo.height * 0.015;
+    const deg = (len) => (len / radius) * (180 / Math.PI);
+    let spans = 0;
+    for (const s of streams) {
+      let along = 0;
+      for (const c of s.cards) {
+        c.w = geo.height * c.item.w;
+        c.el.style.width = `${c.w}px`;
+        c.el.style.height = `${geo.height}px`;
+        c.span = deg(c.w);
+        c.start = deg(along);
+        along += c.w + gap;
+        spans += c.span;
+      }
+      s.period = Math.max(VISIBLE + 40, deg(along));
     }
-    period = Math.max(2 * VISIBLE + 20, (along / radius) * (180 / Math.PI));
+    // Offset the right wall by half a card so the two streams leave the screen alternately.
+    streams[1].lag = spans / all.length / 2;
+    streams[0].lag = 0;
+    // The screen sits just behind the far wall, sized to frame about one card on each side of the centre.
+    const reach = (spans / all.length) * 1.5 * (Math.PI / 180);
+    const zFar = -geo.inset - geo.radius;
+    const zScreen = zFar - 6;
+    const project = (x, z) => (x * geo.persp) / (geo.persp - z);
+    const halfW = project(geo.radius * Math.sin(reach), -geo.inset - geo.radius * Math.cos(reach));
+    const grow = (geo.persp - zScreen) / geo.persp;
+    const sw = 2 * halfW * grow;
+    const sh = geo.height * 1.18 * ((geo.persp - zScreen) / (geo.persp - zFar));
+    screen.style.width = `${sw}px`;
+    screen.style.height = `${sh}px`;
+    screen.style.transform = `translate3d(${-sw / 2}px, ${-sh / 2}px, ${zScreen}px)`;
   }
 
   function place() {
-    for (const c of cards) {
-      const deg = (((c.offset - phase) % period) + period) % period - period / 2;
-      if (Math.abs(deg) > VISIBLE) {
-        c.el.style.opacity = "0";
-        continue;
+    for (const s of streams) {
+      for (const c of s.cards) {
+        // Distance the card's outer edge has travelled from the centre; its middle trails by half a span.
+        const travelled = (((phase - s.lag - c.start) % s.period) + s.period) % s.period;
+        const mid = travelled - c.span / 2;
+        if (mid > VISIBLE) {
+          c.el.style.opacity = "0";
+          continue;
+        }
+        // Until its inner edge clears the centre, clip that edge so the card slides out from behind the seam.
+        const hidden = Math.max(0, 1 - travelled / c.span);
+        const clip = hidden > 0 ? `${(hidden * 100).toFixed(2)}%` : "0";
+        c.el.style.clipPath = s.side > 0 ? `inset(0 0 0 ${clip})` : `inset(0 ${clip} 0 0)`;
+        const deg = s.side * mid;
+        const a = (deg * Math.PI) / 180;
+        const x = geo.radius * Math.sin(a);
+        const z = -geo.inset - geo.radius * Math.cos(a);
+        c.el.style.opacity = "1";
+        c.el.style.transform = `translate3d(${(x - c.w / 2).toFixed(1)}px, ${(-geo.height / 2).toFixed(1)}px, ${z.toFixed(1)}px) rotateY(${(-deg).toFixed(2)}deg)`;
       }
-      const a = (deg * Math.PI) / 180;
-      const x = geo.radius * Math.sin(a);
-      const z = -geo.inset - geo.radius * Math.cos(a);
-      c.el.style.opacity = "1";
-      c.el.style.transform = `translate3d(${(x - c.w / 2).toFixed(1)}px, ${(-geo.height / 2).toFixed(1)}px, ${z.toFixed(1)}px) rotateY(${(-deg).toFixed(2)}deg)`;
     }
   }
 
   function tick(now) {
     const dt = Math.min(64, now - last);
     last = now;
-    phase = (phase + dt * 0.0045) % period;
+    phase += dt * SPEED;
     place();
     frame = requestAnimationFrame(tick);
   }
@@ -116,16 +155,18 @@ function startTunnel(root) {
     running = true;
     last = performance.now();
     frame = requestAnimationFrame(tick);
-    cards.forEach((c) => c.video && c.video.play().catch(() => {}));
+    all.forEach((c) => c.video && c.video.play().catch(() => {}));
   }
 
   function pause() {
     running = false;
     cancelAnimationFrame(frame);
-    cards.forEach((c) => c.video && c.video.pause());
+    all.forEach((c) => c.video && c.video.pause());
   }
 
   measure();
+  // Start mid-flow so the walls are already full on first paint.
+  phase = VISIBLE * 0.9;
   place();
   const onResize = () => { measure(); place(); };
   window.addEventListener("resize", onResize);
@@ -388,7 +429,7 @@ function renderSetup() {
     null,
     2
   );
-  view.innerHTML = `<div class="page">
+  view.innerHTML = `<div class="page text">
     <header class="page-head">
       <h1>Connect your agent</h1>
       <div class="plato-intro">
@@ -417,7 +458,7 @@ function renderSetup() {
 }
 
 function renderAbout() {
-  view.innerHTML = `<div class="page">
+  view.innerHTML = `<div class="page text">
     ${pageHead("About openacademy", null, "Courses you take with the AI you already use. The courses and the agent that teaches them are open source.")}
     <div class="setup">
       <section>
